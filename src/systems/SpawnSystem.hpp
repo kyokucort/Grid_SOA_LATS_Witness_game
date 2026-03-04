@@ -8,3 +8,4 @@
 int CreateEntity(EntityPool& pool);
 void DestroyEntity(World& w, int e);
 int SpawnPlayer(World& world, Vector2 pos);
+int SpawnWall(World& world, Vector2 pos);

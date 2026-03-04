@@ -76,14 +76,20 @@ void Init()
     AssetsLoad(assets);
     Init_World(world);
     CameraInit(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
-    SpawnPlayer(world, {0, 0});
+    //SpawnPlayer(world, {0, 0});
     world.loaded_levels.push_back(SpawnLevel({0, 0}, 14, 8));
+    world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
     InitCursor(world.cursor, world.loaded_levels[0].grid);
 
     Vector2 _level_center = world.loaded_levels[world.active_level].position;
     _level_center.x += world.loaded_levels[world.active_level].grid.width * CELL_SIZE_WORLD/2;
     _level_center.y += world.loaded_levels[world.active_level].grid.height * CELL_SIZE_WORLD/2;
     CameraController::SetTarget(camera_control, _level_center);
+    SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center);
+    SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);
+    SpawnWall(world, world.loaded_levels[0].grid.cells[1].center);
+    SpawnWall(world, world.loaded_levels[0].grid.cells[8].center);
+    SpawnWall(world, world.loaded_levels[0].grid.cells[16].center);
 }
 
 void Update()
@@ -100,6 +106,7 @@ void Update()
         world.loaded_levels.push_back(SpawnLevel({800, 200}, 5, 9));
     }
     UpdateCursor(world.cursor, world.loaded_levels[0].grid);
+    CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
 
     if (editor.enabled) EnableCursor();
     else DisableCursor();

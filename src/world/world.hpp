@@ -28,3 +28,5 @@ struct World
 
 void Init_World(World& world);
 void Update_World(World& world, float dt);
+int World_FindLevelContaining(const World& world, Vector2 pos);
+int World_FindPlayer(const World& world);

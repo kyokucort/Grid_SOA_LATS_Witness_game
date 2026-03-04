@@ -125,7 +125,7 @@ Vector2 GetMovementOnGrid()
         _acceleration_coefficient = 1.0f;
     }else{
         //_acceleration_coefficient = Vector2Length(_mouse) / 1.0f;
-        _acceleration_coefficient = Vector2Length(_mouse) + 1.0f;
+        _acceleration_coefficient = (Vector2Length(_mouse)/4) + 1.0f;
         //_acceleration_coefficient = 1.0f;
     }
     float x_component = _mouse.x;

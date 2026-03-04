@@ -6,6 +6,7 @@
 struct Level
 {
     Vector2 position;
+    Vector2 center;
     Grid grid;
     Rectangle collider_editor;
     Color collider_color;

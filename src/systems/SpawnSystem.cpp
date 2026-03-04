@@ -1,4 +1,5 @@
 #include "SpawnSystem.hpp"
+#include "assets/TextureID.hpp"
 
 int CreateEntity(EntityPool& pool)
 {
@@ -37,8 +38,31 @@ int SpawnPlayer(World& world, Vector2 pos)
     world.render.layer[e] = 2;
     world.render.color[e] = RED;
     world.render.src[e] = {0, 0, 24, 24};
+    world.render.texture[e] = TextureID::Player;
 
     return e;
+}
+
+int SpawnWall(World& world, Vector2 pos){
+    int e = CreateEntity(world.entity);
+    if (e == -1) return -1;
+
+    // Type
+    world.entity.type[e] = EntityType::ENTITY_WALL;
+
+    // Transform
+    world.transform.pos[e] = pos;
+    world.transform.size[e] = {128, 128};
+    world.transform.scale[e] = {1,1};
+
+    // Render
+    world.render.layer[e] = 2;
+    world.render.color[e] = RED;
+    world.render.src[e] = {0, 0, 128, 128};
+    world.render.texture[e] = TextureID::Wall;
+
+    return e;
+
 }
 
 

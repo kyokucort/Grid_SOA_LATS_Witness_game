@@ -17,8 +17,8 @@ void CollectRenders(World& world, AssetManager assets)
         cmd.layer = world.render.layer[i];
 
         Rectangle _dest = {
-            cmd.position.x, 
-            cmd.position.y, 
+            cmd.position.x - ((world.transform.size[i].x * world.transform.scale[i].x) / 2), 
+            cmd.position.y - ((world.transform.size[i].y * world.transform.scale[i].y) / 2), 
             world.transform.size[i].x * world.transform.scale[i].x, 
             world.transform.size[i].y * world.transform.scale[i].y
         };
@@ -64,7 +64,7 @@ void DrawLevel(World& world, int index)
         for (int _y=0; _y < _grid.height; _y++){
                 Vector2 _draw_pos = {_grid.position.x + (_x * _grid.cell_size), _grid.position.y + (_y * _grid.cell_size)};
                 Rectangle _rec = {_draw_pos.x, _draw_pos.y, _grid.cell_size, _grid.cell_size};
-                //DrawRectangleLinesEx(_rec, 1.0f, BLACK);
+                DrawRectangleLinesEx(_rec, 0.5f, BLACK);
         }
     }
     DrawText(TextFormat("Level : %i", index), _grid.position.x, _grid.position.y, 32, RED);

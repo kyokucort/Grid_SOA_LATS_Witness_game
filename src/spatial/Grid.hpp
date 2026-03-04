@@ -5,6 +5,8 @@
 
 struct Cell
 {
+    Vector2 coords;
+    Vector2 center;
     int entities[16];
     int count;
 };
@@ -20,4 +22,5 @@ struct Grid
 };
 
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position);
+void Init_Cells(Grid& grid);
 void GridInsert(Grid& g, int entity, Vector2 pos);

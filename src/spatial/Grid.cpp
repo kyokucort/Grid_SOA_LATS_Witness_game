@@ -7,6 +7,22 @@ void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 positi
     grid.height = height;
     grid.cell_size = cell_size;
     grid.position = position;
+    Init_Cells(grid);
+}
+
+void Init_Cells(Grid& grid)
+{
+    for (int x = 0; x < grid.width; x++){
+        for (int y = 0; y < grid.height; y++){
+            Cell _cell;
+            Vector2 _center = grid.position;
+            _center.x += x * grid.cell_size + (grid.cell_size/2);
+            _center.y += y * grid.cell_size + (grid.cell_size/2);
+            _cell.coords = {static_cast<float>(x), static_cast<float>(y)};
+            _cell.center = _center;
+            grid.cells.push_back(_cell);
+        }
+    }
 }
 
 

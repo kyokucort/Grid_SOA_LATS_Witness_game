@@ -6,6 +6,8 @@ Level SpawnLevel(Vector2 pos, int width, int height)
 {
     Level level;
     level.position = pos;
+    level.center.x = level.position.x + (width * CELL_SIZE_WORLD/2);
+    level.center.y = level.position.y + (height * CELL_SIZE_WORLD/2);
     InitGrid(level.grid, width, height, CELL_SIZE_WORLD, pos);
 
 

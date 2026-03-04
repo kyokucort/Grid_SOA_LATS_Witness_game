@@ -4,6 +4,7 @@
 void AssetsLoad(AssetManager& a)
 {
     a.textures[(int)TextureID::Player]  = LoadTexture("resources/textures/mage_idle.png");
+    a.textures[(int)TextureID::Wall]  = LoadTexture("resources/textures/wall.png");
     //a.textures[(int)TextureID::Enemy]   = LoadTexture("assets/textures/enemy.png");
     //a.textures[(int)TextureID::Tileset] = LoadTexture("assets/textures/tileset.png");
 }
