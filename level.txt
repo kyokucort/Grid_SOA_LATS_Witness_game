@@ -1,0 +1,32 @@
+{
+    "levels": [
+        {
+            "cell_size": 32.0,
+            "grid_height": 32,
+            "grid_width": 32,
+            "position": [
+                -2688.0,
+                -704.0
+            ]
+        },
+        {
+            "cell_size": 32.0,
+            "grid_height": 32,
+            "grid_width": 32,
+            "position": [
+                384.0,
+                -1088.0
+            ]
+        },
+        {
+            "cell_size": 32.0,
+            "grid_height": 32,
+            "grid_width": 32,
+            "position": [
+                -512.0,
+                1024.0
+            ]
+        }
+    ],
+    "version": 1
+}
