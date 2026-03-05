@@ -1,11 +1,23 @@
 #include "world.hpp"
-
+#include "systems/SpawnSystem.hpp"
 
 
 void Init_World(World& world)
 {
     world.entity.count = 0;
     world.active_level = 0;
+}
+
+
+void Init_Levels(World& world)
+{
+    for (int i = 0; i < world.loaded_levels.size(); i++){
+
+        for (int c = 0; c < world.loaded_levels[i].grid.cells.size(); c++){
+            Vector2 _pos = world.loaded_levels[i].grid.cells[c].center;
+            world.loaded_levels[i].grid.cells[c].entities[0] = SpawnFloorGrass(world, _pos);
+        }
+    }
 }
 
 void Update_World(World& world, float dt)

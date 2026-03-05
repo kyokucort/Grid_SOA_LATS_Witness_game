@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "spatial/Grid.hpp"
+#include "assets/TextureID.hpp"
 
 struct Level
 {
@@ -10,6 +11,7 @@ struct Level
     Grid grid;
     Rectangle collider_editor;
     Color collider_color;
+    TextureID texture_floor;
 };
 
 Level SpawnLevel(Vector2 pos, int width, int height);

@@ -1,5 +1,6 @@
 #include "level.hpp"
 #include "core/config.hpp"
+#include "assets/AssetManager.hpp"
 
 
 Level SpawnLevel(Vector2 pos, int width, int height)
@@ -15,6 +16,8 @@ Level SpawnLevel(Vector2 pos, int width, int height)
     level.collider_editor.y = pos.y;
     level.collider_editor.width = level.grid.width * level.grid.cell_size;
     level.collider_editor.height = level.grid.height * level.grid.cell_size;
+
+    level.texture_floor = TextureID::Floor_Grass;
 
     return level;
 }

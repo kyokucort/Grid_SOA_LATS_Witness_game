@@ -3,6 +3,9 @@
 
 std::vector<DrawCmd> queue;
 
+
+
+
 void CollectRenders(World& world, AssetManager assets)
 {
     for (int i=0 ; i < MAX_ENTITIES; i++)
@@ -10,7 +13,7 @@ void CollectRenders(World& world, AssetManager assets)
         if (!world.entity.alive[i]) continue;
 
         DrawCmd cmd;
-        
+
         cmd.tex = &AssetsGet(assets, world.render.texture[i]);
         cmd.src = world.render.src[i];
         cmd.position = world.transform.pos[i];
@@ -27,10 +30,6 @@ void CollectRenders(World& world, AssetManager assets)
 
         queue.push_back(cmd);
     }
-
-    //
-    // TO DO: get rendered element from level
-    //
 
 
     
@@ -64,7 +63,7 @@ void DrawLevel(World& world, int index)
         for (int _y=0; _y < _grid.height; _y++){
                 Vector2 _draw_pos = {_grid.position.x + (_x * _grid.cell_size), _grid.position.y + (_y * _grid.cell_size)};
                 Rectangle _rec = {_draw_pos.x, _draw_pos.y, _grid.cell_size, _grid.cell_size};
-                DrawRectangleLinesEx(_rec, 0.5f, BLACK);
+                DrawRectangleLinesEx(_rec, 0.0f, BLACK);
         }
     }
     DrawText(TextFormat("Level : %i", index), _grid.position.x, _grid.position.y, 32, RED);
@@ -110,3 +109,5 @@ void DrawWorld(World& world, AssetManager& assets)
 {
     DrawPool(world, assets);
 }
+
+

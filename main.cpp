@@ -90,6 +90,7 @@ void Init()
     SpawnWall(world, world.loaded_levels[0].grid.cells[1].center);
     SpawnWall(world, world.loaded_levels[0].grid.cells[8].center);
     SpawnWall(world, world.loaded_levels[0].grid.cells[16].center);
+    Init_Levels(world);
 }
 
 void Update()
