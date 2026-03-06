@@ -8,6 +8,7 @@
 #include "levels/level.hpp"
 #include "spatial/Grid.hpp"
 #include "cursor/Cursor.hpp"
+#include "camera/CameraController.hpp"
 #include <vector>
 
 #include "systems/MovementSystem.hpp"
@@ -25,9 +26,11 @@ struct World
     Cursor cursor;
 };
 
-
-void Init_World(World& world);
-void Init_Levels(World& world);
-void Update_World(World& world, float dt);
-int World_FindLevelContaining(const World& world, Vector2 pos);
-int World_FindPlayer(const World& world);
+namespace WorldManager
+{
+    void Init_World(World& world, CameraController::CameraController& camera_control);
+    void Init_Levels(World& world);
+    void Update_World(World& world, float dt);
+    int World_FindLevelContaining(const World& world, Vector2 pos);
+    int World_FindPlayer(const World& world);
+}

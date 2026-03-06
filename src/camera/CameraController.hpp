@@ -21,10 +21,10 @@ namespace CameraController{
 
 
 
-    void CameraInit(CameraController& c, int screenW, int screenH);
-    void CameraUpdateZoom(CameraController& c);
-    void CameraUpdatePan(CameraController& c);
-    void CameraReset(CameraController& c);
-    void CameraUpdate(CameraController& c);
+    void Init(CameraController& c, int screenW, int screenH);
+    void UpdateZoom(CameraController& c);
+    void UpdatePan(CameraController& c);
+    void Reset(CameraController& c);
+    void Update(CameraController& c);
     void SetTarget(CameraController& c, Vector2 target);
 }

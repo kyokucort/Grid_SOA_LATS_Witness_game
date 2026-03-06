@@ -67,36 +67,21 @@ int main(void)
 
 void Init()
 {
-    SetConfigFlags(FLAG_VSYNC_HINT);
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [core] example - basic screen manager");
-    InitAudioDevice();
-    //SetConfigFlags(FLAG_FULLSCREEN_MODE);
     //SetTargetFPS(60);
+    SetConfigFlags(FLAG_VSYNC_HINT);
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "INTER LIGERE");
+    InitAudioDevice();
     ToggleFullscreen();
-    AssetsLoad(assets);
-    Init_World(world);
-    CameraInit(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
-    //SpawnPlayer(world, {0, 0});
-    world.loaded_levels.push_back(SpawnLevel({0, 0}, 14, 8));
-    world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
-    InitCursor(world.cursor, world.loaded_levels[0].grid);
 
-    Vector2 _level_center = world.loaded_levels[world.active_level].position;
-    _level_center.x += world.loaded_levels[world.active_level].grid.width * CELL_SIZE_WORLD/2;
-    _level_center.y += world.loaded_levels[world.active_level].grid.height * CELL_SIZE_WORLD/2;
-    CameraController::SetTarget(camera_control, _level_center);
-    SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center);
-    SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);
-    SpawnWall(world, world.loaded_levels[0].grid.cells[1].center);
-    SpawnWall(world, world.loaded_levels[0].grid.cells[8].center);
-    SpawnWall(world, world.loaded_levels[0].grid.cells[16].center);
-    Init_Levels(world);
+
+    AssetsLoad(assets);
+    WorldManager::Init_World(world, camera_control);
 }
 
 void Update()
 {
-    Update_World(world, GetFrameTime());
-    CameraUpdate(camera_control);
+    WorldManager::Update_World(world, GetFrameTime());
+    CameraController::Update(camera_control);
     Editor_Update(world, editor, camera_control);
 
     if (IsKeyPressed(KEY_SPACE)){
@@ -106,7 +91,7 @@ void Update()
         printf("entity count is %i\n #####\n\n", world.entity.count);
         world.loaded_levels.push_back(SpawnLevel({800, 200}, 5, 9));
     }
-    UpdateCursor(world.cursor, world.loaded_levels[0].grid);
+    CursorManager::Update(world.cursor, world.loaded_levels[0].grid);
     CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
 
     if (editor.enabled) EnableCursor();

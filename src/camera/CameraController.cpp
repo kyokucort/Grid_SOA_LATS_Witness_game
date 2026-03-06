@@ -2,7 +2,7 @@
 #include "raymath.h"
 
 namespace CameraController{
-    void CameraInit(CameraController& c, int screenW, int screenH)
+    void Init(CameraController& c, int screenW, int screenH)
     {
         c.cam.target = {0,0};
         c.cam.offset = {(float)screenW/2, (float)screenH/2};
@@ -14,7 +14,7 @@ namespace CameraController{
     }
 
 
-    void CameraUpdateZoom(CameraController& c)
+    void UpdateZoom(CameraController& c)
     {
         float wheel = GetMouseWheelMove();
         if(wheel == 0) return;
@@ -31,7 +31,7 @@ namespace CameraController{
         c.cam.target = Vector2Add(c.cam.target, delta);
     }
 
-    void CameraUpdatePan(CameraController& c)
+    void UpdatePan(CameraController& c)
     {
         if(IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))
         {
@@ -51,20 +51,20 @@ namespace CameraController{
         }
     }
 
-    void CameraReset(CameraController& c)
+    void Reset(CameraController& c)
     {
         c.cam.target = c.default_target;
         c.zoom = c.default_zoom;
         c.cam.zoom = c.zoom;
     }
 
-    void CameraUpdate(CameraController& c)
+    void Update(CameraController& c)
     {
-        CameraUpdateZoom(c);
-        CameraUpdatePan(c);
+        UpdateZoom(c);
+        UpdatePan(c);
 
         if(IsKeyPressed(KEY_R))
-            CameraReset(c);
+            Reset(c);
     }
 
     void SetTarget(CameraController& c, Vector2 target)

@@ -12,8 +12,11 @@ struct Cursor {
 };
 
 
-void InitCursor(Cursor& cursor, Grid& grid);
-void UpdateCursor(Cursor &cursor, Grid grid);
-float GetCloserCellDistance(Vector2 position, Grid grid);
-Vector2 GetMovementOnGrid();
-Vector2 GetCloserCell(Vector2 position, Grid grid);
+namespace CursorManager
+{
+    void Init(Cursor& cursor, Grid& grid);
+    void Update(Cursor &cursor, Grid grid);
+    float GetCloserCellDistance(Vector2 position, Grid grid);
+    Vector2 GetMovementOnGrid();
+    Vector2 GetCloserCell(Vector2 position, Grid grid);
+}
