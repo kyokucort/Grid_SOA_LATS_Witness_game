@@ -1,5 +1,9 @@
 #include "world.hpp"
 #include "systems/SpawnSystem.hpp"
+#include "systems/MovementSystem.hpp"
+#include "systems/CollisionSystem.hpp"
+#include "systems/GameplaySystem.hpp"
+#include "assert.h"
 
 
 namespace WorldManager{
@@ -10,7 +14,7 @@ namespace WorldManager{
         world.active_level = 0;
         world.loaded_levels.push_back(SpawnLevel({0, 0}, 14, 8));
         world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
-        CursorManager::Init(world.cursor, world.loaded_levels[0].grid);
+        CursorManager::Init(world, World_FindCursor(world), world.loaded_levels[0].grid.cells[0].center);
         CameraController::Init(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 // BORDEL POUR DEBUGGER UN INIT WORLD MAIS A REMPLACER PAR UN CHARGEMENT PROPRE DU FICHIER MONDE
@@ -20,6 +24,8 @@ namespace WorldManager{
         _level_center.y += world.loaded_levels[world.active_level].grid.height * CELL_SIZE_WORLD/2;
         CameraController::SetTarget(camera_control, _level_center);
         SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center);
+        SpawnCursor(world, {0, 0});
+        CursorManager::Init(world, World_FindCursor(world), {64, 64});
         SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);
         SpawnWall(world, world.loaded_levels[0].grid.cells[1].center);
         SpawnWall(world, world.loaded_levels[0].grid.cells[8].center);
@@ -35,14 +41,18 @@ namespace WorldManager{
             for (int c = 0; c < world.loaded_levels[i].grid.cells.size(); c++){
                 Vector2 _pos = world.loaded_levels[i].grid.cells[c].center;
                 world.loaded_levels[i].grid.cells[c].entities[0] = SpawnFloorGrass(world, _pos);
+                SpawnCellConnector(world, _pos);
             }
         }
     }
 
     void Update_World(World& world, float dt)
     {
+        assert(World_FindCursor(world) >= 0 && "Whoops, length can't possibly be negative! (didn't we just check 10 lines ago?) Tell jsmith");
+        
         MovementSystem::Update(world, dt);
-        CursorManager::Update(world.cursor, world.loaded_levels[0].grid);
+        CollisionSystem::Update(world);
+        GameplaySystem::Update(world);
 
         int _player = World_FindPlayer(world);
         Vector2 _playerpos = world.transform.pos[_player];
@@ -68,6 +78,15 @@ namespace WorldManager{
     {   
         for (int i = 0; i < MAX_ENTITIES; i++){
             if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
+                return i;
+        }
+        return -1;
+    }
+
+    int World_FindCursor(const World& world)
+    {   
+        for (int i = 0; i < MAX_ENTITIES; i++){
+            if (world.entity.type[i] == EntityType::ENTITY_CURSOR)
                 return i;
         }
         return -1;

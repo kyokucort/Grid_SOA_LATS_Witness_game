@@ -11,8 +11,12 @@
 #include "camera/CameraController.hpp"
 #include <vector>
 
-#include "systems/MovementSystem.hpp"
 
+struct CollisionEvent
+{
+    int a;
+    int b;
+};
 
 struct World
 {
@@ -23,6 +27,7 @@ struct World
     MovePool move;
     RenderPool render;
     ColliderPool collider;
+    std::vector<CollisionEvent> collision_events;
     Cursor cursor;
 };
 
@@ -33,4 +38,5 @@ namespace WorldManager
     void Update_World(World& world, float dt);
     int World_FindLevelContaining(const World& world, Vector2 pos);
     int World_FindPlayer(const World& world);
+    int World_FindCursor(const World& world);
 }

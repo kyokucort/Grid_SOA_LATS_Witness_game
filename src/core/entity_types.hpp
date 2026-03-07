@@ -3,6 +3,8 @@
 enum class EntityType
 {
     ENTITY_PLAYER,
+    ENTITY_CURSOR,
+    ENTITY_CELL_CONNECTOR,
     ENTITY_FLOOR_GRASS,
     ENTITY_WALL,
     ENTITY_LEVEL,

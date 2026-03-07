@@ -213,24 +213,3 @@ float Snap(float value, float snap)
 }
 
 
-/*
-Vector2 Get(CameraController::CameraControllerCameraController& c)
-{
-    if(IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE))
-    {
-        c.dragging = true;
-        c.drag_start_mouse = GetMousePosition();
-        c.drag_start_target = c.cam.target;
-    }
-
-    if(IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE))
-        c.dragging = false;
-
-    if(c.dragging)
-    {
-        Vector2 delta = Vector2Subtract(c.drag_start_mouse, GetMousePosition());
-        delta = Vector2Scale(delta, 1.0f / c.cam.zoom);
-        c.cam.target = Vector2Add(c.drag_start_target, delta);
-    }
-}
-*/

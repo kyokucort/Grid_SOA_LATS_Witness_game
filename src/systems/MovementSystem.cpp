@@ -1,5 +1,6 @@
 #include "MovementSystem.hpp"
 #include "world/world.hpp"
+#include "cursor/Cursor.hpp"
 #include "raylib.h"
 
 namespace MovementSystem
@@ -12,7 +13,13 @@ namespace MovementSystem
                 continue;
 
             if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
+            {
                 Update_Player(world.transform.pos[i], dt);
+            }
+            else if (world.entity.type[i] == EntityType::ENTITY_CURSOR)
+            {
+                Update_Cursor(world, i);
+            }
 
         }
     }
@@ -26,6 +33,10 @@ namespace MovementSystem
         if (IsKeyPressed(KEY_S)) pos.y += _step;
         if (IsKeyPressed(KEY_A)) pos.x -= _step;
         if (IsKeyPressed(KEY_D)) pos.x += _step;
+    }
+
+    void Update_Cursor(World& world, int index){
+        CursorManager::Update(world, index, world.loaded_levels[world.active_level].grid);
     }
 
 }

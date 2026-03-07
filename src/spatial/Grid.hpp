@@ -19,6 +19,7 @@ struct Grid
     Vector2 position;
 
     std::vector<Cell> cells;
+    std::vector<Vector2> path;
 };
 
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position);

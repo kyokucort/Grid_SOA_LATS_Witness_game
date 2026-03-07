@@ -36,7 +36,7 @@ int SpawnPlayer(World& world, Vector2 pos)
 
     // Render
     world.render.layer[e] = 3;
-    world.render.color[e] = RED;
+    world.render.color[e] = WHITE;
     world.render.src[e] = {0, 0, 24, 24};
     world.render.texture[e] = TextureID::Player;
 
@@ -57,7 +57,7 @@ int SpawnWall(World& world, Vector2 pos){
 
     // Render
     world.render.layer[e] = 2;
-    world.render.color[e] = RED;
+    world.render.color[e] = WHITE;
     world.render.src[e] = {0, 0, 128, 128};
     world.render.texture[e] = TextureID::Wall;
 
@@ -80,7 +80,7 @@ int SpawnFloorGrass(World& world, Vector2 pos){
 
     // Render
     world.render.layer[e] = 1;
-    world.render.color[e] = RED;
+    world.render.color[e] = WHITE;
     world.render.src[e] = {0, 0, 128, 128};
     world.render.texture[e] = TextureID::Floor_Grass;
 
@@ -89,7 +89,58 @@ int SpawnFloorGrass(World& world, Vector2 pos){
 }
 
 
+int SpawnCellConnector(World& world, Vector2 pos){
+    int e = CreateEntity(world.entity);
+    if (e == -1) return -1;
 
+    // Type
+    world.entity.type[e] = EntityType::ENTITY_CELL_CONNECTOR;
+
+    // Transform
+    world.transform.pos[e] = pos;
+    world.transform.size[e] = {32, 32};
+    world.transform.scale[e] = {1,1};
+
+    // Render
+    world.render.layer[e] = 1;
+    world.render.color[e] = GRAY;
+    world.render.src[e] = {0, 0, 32, 32};
+    world.render.texture[e] = TextureID::Cell_Connector;
+
+    //Collider
+    world.collider.has[e] = true;
+    world.collider.bounds[e] = {pos.x - world.transform.size[e].x/2, pos.y - world.transform.size[e].y/2, 32, 32};
+
+    return e;
+
+}
+
+int SpawnCursor(World& world, Vector2 pos){
+    int e = CreateEntity(world.entity);
+    if (e == -1) return -1;
+
+    // Type
+    world.entity.type[e] = EntityType::ENTITY_CURSOR;
+
+    // Transform
+    world.transform.pos[e] = pos;
+    world.transform.size[e] = {64, 64};
+    world.transform.scale[e] = {1,1};
+
+    // Render
+    world.render.layer[e] = 6;
+    world.render.color[e] = WHITE;
+    world.render.src[e] = {0, 0, 64, 64};
+    world.render.texture[e] = TextureID::Cursor_Base;
+
+
+    //Collider
+    world.collider.has[e] = true;
+    world.collider.bounds[e] = {pos.x - world.transform.size[e].x/2, pos.y - world.transform.size[e].y/2, 64, 64};
+
+    return e;
+
+}
 
 
 

@@ -4,6 +4,8 @@
 void AssetsLoad(AssetManager& a)
 {
     a.textures[(int)TextureID::Player]  = LoadTexture("resources/textures/mage_idle.png");
+    a.textures[(int)TextureID::Cursor_Base]  = LoadTexture("resources/textures/cursor_base.png");
+    a.textures[(int)TextureID::Cell_Connector]  = LoadTexture("resources/textures/cell_connector.png");
     a.textures[(int)TextureID::Floor_Grass]  = LoadTexture("resources/textures/floor_grass.png");
     a.textures[(int)TextureID::Wall]  = LoadTexture("resources/textures/wall.png");
     //a.textures[(int)TextureID::Enemy]   = LoadTexture("assets/textures/enemy.png");

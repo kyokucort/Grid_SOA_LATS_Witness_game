@@ -6,4 +6,6 @@
 struct ColliderPool
 {
     Rectangle editor[MAX_ENTITIES];
+    Rectangle bounds[MAX_ENTITIES];
+    bool has[MAX_ENTITIES];
 };

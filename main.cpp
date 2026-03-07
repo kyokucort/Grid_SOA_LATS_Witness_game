@@ -90,8 +90,6 @@ void Update()
     CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
     Editor_Update(world, editor, camera_control);
 
-    if (editor.enabled) EnableCursor();
-    else DisableCursor();
     
 
     // Pour debug, a supprimer

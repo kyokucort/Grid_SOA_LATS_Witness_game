@@ -8,6 +8,8 @@ $CXX $CXXFLAGS \
 main.cpp \
 src/modules/buttons/button.cpp \
 src/systems/SpawnSystem.cpp \
+src/systems/CollisionSystem.cpp \
+src/systems/GameplaySystem.cpp \
 src/systems/RenderSystem.cpp \
 src/systems/MovementSystem.cpp \
 src/world/world.cpp \
