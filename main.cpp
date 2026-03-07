@@ -65,6 +65,11 @@ int main(void)
     return 0;
 }
 
+
+
+
+//Main functions
+
 void Init()
 {
     //SetTargetFPS(60);
@@ -82,8 +87,14 @@ void Update()
 {
     WorldManager::Update_World(world, GetFrameTime());
     CameraController::Update(camera_control);
+    CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
     Editor_Update(world, editor, camera_control);
 
+    if (editor.enabled) EnableCursor();
+    else DisableCursor();
+    
+
+    // Pour debug, a supprimer
     if (IsKeyPressed(KEY_SPACE)){
         ToggleFullscreen();
     }
@@ -91,11 +102,7 @@ void Update()
         printf("entity count is %i\n #####\n\n", world.entity.count);
         world.loaded_levels.push_back(SpawnLevel({800, 200}, 5, 9));
     }
-    CursorManager::Update(world.cursor, world.loaded_levels[0].grid);
-    CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
 
-    if (editor.enabled) EnableCursor();
-    else DisableCursor();
 }
 
 void Draw()
@@ -105,15 +112,13 @@ void Draw()
         ClearBackground(BEIGE);
         BeginMode2D(camera_control.cam);
 
-        DrawWorld(world, assets);
+        RenderSystem::DrawWorld(world, assets);
         Editor_Draw(world, editor);
 
-        DrawCursor(world);
+        RenderSystem::DrawCursor(world);
         EndMode2D();
 
-        //
         // UI Drawings
-        //
 
         Editor_Draw_UI(world, editor, camera_control);
         DrawFPS(SCREEN_WIDTH - 30, SCREEN_HEIGHT - 30);

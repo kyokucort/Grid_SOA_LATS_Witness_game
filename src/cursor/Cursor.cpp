@@ -81,6 +81,24 @@ namespace CursorManager
 
     Vector2 GetCloserCell(Vector2 position, Grid grid)
     {
+        Vector2 _result = grid.cells[0].center;
+        for (int i = 0; i < grid.cells.size(); i++)
+        {
+
+            float _distance_next = Vector2Distance(position, grid.cells[i].center);
+            float _distance_current = Vector2Distance(position, _result);
+            if (_distance_next < _distance_current)
+            {
+                _result = grid.cells[i].center;
+            }
+        }
+        return _result;
+    }
+    
+/*
+
+    Vector2 GetCloserCell(Vector2 position, Grid grid)
+    {
         Vector2 _result = grid.position;
         for (int x = 0; x < grid.width; x++)
             for (int y = 0; y < grid.height; y++)
@@ -96,14 +114,15 @@ namespace CursorManager
         return _result;
     }
 
+    */
+
+
     float GetCloserCellDistance(Vector2 position, Grid grid)
     {
         float _result = 1000.0f;
-        for (int x = 0; x < grid.width; x++)
-            for (int y = 0; y < grid.height; y++)
+        for (int i = 0; i < grid.cells.size(); i++)
         {
-            Vector2 _cell = {grid.position.x + (x * grid.cell_size), grid.position.y +  (y * grid.cell_size)};
-            float _distance_next = Vector2Distance(position, _cell);
+            float _distance_next = Vector2Distance(position, grid.cells[i].center);
             if (_distance_next < _result)
             {
                 _result = _distance_next;

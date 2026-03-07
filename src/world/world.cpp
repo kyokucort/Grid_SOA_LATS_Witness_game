@@ -42,6 +42,8 @@ namespace WorldManager{
     void Update_World(World& world, float dt)
     {
         MovementSystem::Update(world, dt);
+        CursorManager::Update(world.cursor, world.loaded_levels[0].grid);
+
         int _player = World_FindPlayer(world);
         Vector2 _playerpos = world.transform.pos[_player];
         int newLevel = World_FindLevelContaining(world, _playerpos);
