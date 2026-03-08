@@ -5,6 +5,7 @@
 #include "pools/RenderPool.hpp"
 #include "pools/ColliderPool.hpp"
 #include "pools/MovePool.hpp"
+#include "pools/CursorPool.hpp"
 #include "levels/level.hpp"
 #include "spatial/Grid.hpp"
 #include "cursor/Cursor.hpp"
@@ -28,7 +29,7 @@ struct World
     RenderPool render;
     ColliderPool collider;
     std::vector<CollisionEvent> collision_events;
-    Cursor cursor;
+    CursorPool cursor;
 };
 
 namespace WorldManager

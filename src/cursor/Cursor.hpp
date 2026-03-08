@@ -27,4 +27,5 @@ namespace CursorManager
     Vector2 GetCurrentCellCoords(Vector2 position, Grid& grid);
     void CheckNewCell(Vector2 position, Grid& grid);
     Vector2 GetActiveCellCoords(Vector2 position, Grid& grid);
+    void CheckWalls(World& world, int index, Grid& grid, Vector2 coords);
 }

@@ -21,9 +21,7 @@ namespace RenderSystem
 
     void CollectRenders(World& world, AssetManager assets);
     void DrawPool(World& world, AssetManager assets);
-    void DrawPlayer(Vector2 position, Vector2 size, Color color);
     void DrawWorld(World& world, AssetManager& assets);
     void DrawLevel(World& world, int index);
-    void DrawCursor(World& world);
     DrawCmd GetDrawCmd(World& world, int index, AssetManager assets);
 }

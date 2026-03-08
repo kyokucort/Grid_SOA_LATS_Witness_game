@@ -101,6 +101,9 @@ void Update()
         world.loaded_levels.push_back(SpawnLevel({800, 200}, 5, 9));
     }
 
+    if (IsKeyPressed(KEY_R)){
+        AssetsLoad(assets);
+    }
 }
 
 void Draw()
@@ -113,7 +116,6 @@ void Draw()
         RenderSystem::DrawWorld(world, assets);
         Editor_Draw(world, editor);
 
-        RenderSystem::DrawCursor(world);
         EndMode2D();
 
         // UI Drawings

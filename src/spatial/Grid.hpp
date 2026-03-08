@@ -9,6 +9,7 @@ struct Cell
     Vector2 center;
     int entities[16];
     int count;
+    bool is_wall;
 };
 
 struct Grid
@@ -25,3 +26,4 @@ struct Grid
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position);
 void Init_Cells(Grid& grid);
 void GridInsert(Grid& g, int entity, Vector2 pos);
+int GetCellFromCoords(Grid& grid, int x, int y);

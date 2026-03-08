@@ -138,6 +138,9 @@ int SpawnCursor(World& world, Vector2 pos){
     world.collider.has[e] = true;
     world.collider.bounds[e] = {pos.x - world.transform.size[e].x/2, pos.y - world.transform.size[e].y/2, 64, 64};
 
+    //Cursor
+    world.cursor.has[e] = true;
+
     return e;
 
 }

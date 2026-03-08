@@ -82,6 +82,7 @@ namespace RenderSystem
         {
             DrawCircleV(_grid.cells[i].center, 2.0f, RAYWHITE);
             DrawText(TextFormat("%0.1f - %0.1f", _grid.cells[i].coords.x, _grid.cells[i].coords.y), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 48, 12, WHITE);
+            DrawText(TextFormat("WALL = %i", _grid.cells[i].is_wall), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 24, 12, WHITE);
         }
 
         if (_grid.path.size() > 1){
@@ -108,39 +109,6 @@ namespace RenderSystem
             DrawText(TextFormat("First Node : %0.1f - %0.1f", _grid.path[0].x, _grid.path[0].y), _grid.position.x, _grid.position.y + 512, 32, WHITE);
         }
     }
-
-
-    void DrawCursor(World& world) {
-        DrawCircleV(world.cursor.position, 16, RAYWHITE);
-    }
-
-    /*
-    void DrawPool(World world)
-    {
-        for (int i=0 ; i < MAX_ENTITIES; i++)
-        {
-            if (!world.entity.alive[i]) continue;
-            switch (world.entity.type[i]) 
-            {
-                case EntityType::ENTITY_PLAYER:
-                DrawPlayer(world.transform.pos[i], {10, 10}, world.render.color[i]);
-                break;
-                case EntityType::ENTITY_LEVEL:
-                DrawLevel(world.transform.pos[i], {10, 10}, world.render.color[i]);
-                break;
-                default:
-                break;
-            }
-        }
-    }
-    */
-
-    void DrawPlayer(Vector2 position, Vector2 size, Color color)
-    {
-        DrawCircleV(position, size.x, color);
-    }
-
-
 
 
     void DrawWorld(World& world, AssetManager& assets)

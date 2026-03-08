@@ -20,6 +20,7 @@ void Init_Cells(Grid& grid)
             _center.y += y * grid.cell_size + (grid.cell_size/2);
             _cell.coords = {static_cast<float>(x), static_cast<float>(y)};
             _cell.center = _center;
+            _cell.is_wall = false;
             grid.cells.push_back(_cell);
         }
     }
@@ -33,4 +34,17 @@ void GridInsert(Grid& grid, int entity, Vector2 pos)
     Cell& c = grid.cells[cy*grid.width+cx];
 
     c.entities[c.count++] = entity;
+}
+
+
+int GetCellFromCoords(Grid& grid, int x, int y)
+{
+    for (int i= 0; i< grid.cells.size(); i++)
+    {
+        if (grid.cells[i].coords.x == x && grid.cells[i].coords.y == y)
+        {
+            return i;
+        }
+    }
+    return -1;
 }

@@ -2,6 +2,7 @@
 #include "core/config.hpp"
 #include "world/world.hpp"
 #include "raymath.h"
+#include "assert.h"
 
 namespace CursorManager
 {
@@ -17,11 +18,12 @@ namespace CursorManager
     
     void Init(World& world, int index, Vector2 position)
     {
+        //assert(world.cursor.has[index] == true && "The entity has no cursor component");
         world.transform.pos[index] = position;
-        world.move.cursor_can_turn[index] = true;
-        world.move.cursor_base_speed[index] = CELL_SIZE_WORLD;
-        world.move.cursor_slide_speed[index] = CELL_SIZE_WORLD/2;
-        world.move.cursor_is_free[index] = true;
+        world.cursor.can_turn[index] = true;
+        world.cursor.base_speed[index] = CELL_SIZE_WORLD;
+        world.cursor.slide_speed[index] = CELL_SIZE_WORLD/2;
+        world.cursor.is_free[index] = true;
         //HideCursor();
     }
 
@@ -42,7 +44,7 @@ namespace CursorManager
         //HideCursor();
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            if (!world.move.cursor_is_free[index])
+            if (!world.cursor.is_free[index])
             {
                 EnableCursor();
                 HideCursor();
@@ -55,9 +57,9 @@ namespace CursorManager
                 Vector2 _cell = GetActiveCellCoords(world.transform.pos[index], grid);
                 grid.path.push_back(_cell);
             }
-            world.move.cursor_is_free[index] = !world.move.cursor_is_free[index];
+            world.cursor.is_free[index] = !world.cursor.is_free[index];
         }
-        if (!world.move.cursor_is_free[index])
+        if (!world.cursor.is_free[index])
         {
             HandleGridMovement(world, index, grid);
             CheckNewCell(world.transform.pos[index], grid);
@@ -76,10 +78,10 @@ namespace CursorManager
     void HandleGridMovement(World& world, int index, Grid& grid)
     {
         Vector2& _pos = world.transform.pos[index];
-        Vector2& _anchor = world.move.anchor[index];
-        float& _speed = world.move.cursor_base_speed[index];
-        float& _slide_speed = world.move.cursor_slide_speed[index];
-        world.move.anchor[index] = GetCloserCell(world.transform.pos[index], grid);
+        Vector2& _anchor = world.cursor.anchor[index];
+        float& _speed = world.cursor.base_speed[index];
+        float& _slide_speed = world.cursor.slide_speed[index];
+        world.cursor.anchor[index] = GetCloserCell(world.transform.pos[index], grid);
 
     //#####################################################################
     //#####################################################################
@@ -95,7 +97,7 @@ namespace CursorManager
             _pos.y += GetMovementOnGrid().y * _speed * GetFrameTime();
         }else{
             float _tween_speed = 30.0f;
-            Vector2 _tween_direction = world.move.anchor[index] - _pos;
+            Vector2 _tween_direction = world.cursor.anchor[index] - _pos;
             if (abs(abs(_pos.x) - abs(_anchor.x)) < abs(abs(_pos.y) - abs(_anchor.y)))
             {
                 _pos.y += GetMovementOnGrid().y * _speed * GetFrameTime();
@@ -130,6 +132,15 @@ namespace CursorManager
         world.collider.bounds[index].x = _pos.x - world.transform.size[index].x/2;
         world.collider.bounds[index].y = _pos.y - world.transform.size[index].y/2;
         Vector2 _coords = GetActiveCellCoords(_pos, grid);
+        int _test_cell = GetCellFromCoords(grid, _coords.x, _coords.y);
+        if (_test_cell >= 0)
+        {
+            grid.cells[_test_cell].is_wall = true;
+        }
+
+
+        CheckWalls(world, index, grid, _coords);
+
         printf("Coords: %0.1f - %0.1f", _coords.x, _coords.y);
 
 
@@ -138,6 +149,39 @@ namespace CursorManager
 
     }
 
+    void CheckWalls(World& world, int index, Grid& grid, Vector2 coords)
+    {
+        int _current_cell = GetCellFromCoords(grid, coords.x, coords.y);
+        if (_current_cell < 0 ) return;
+
+        int _up_cell = GetCellFromCoords(grid, coords.x, coords.y - 1);
+        int _down_cell = GetCellFromCoords(grid, coords.x, coords.y + 1);
+        int _left_cell = GetCellFromCoords(grid, coords.x - 1, coords.y);
+        int _right_cell = GetCellFromCoords(grid, coords.x + 1, coords.y);
+        
+        if (grid.cells[_up_cell].is_wall == true){
+            if (GetMovementOnGrid().y < 0){
+                world.transform.pos[index].y = grid.cells[_current_cell].center.y;
+            }
+        }
+        if (grid.cells[_down_cell].is_wall == true){
+            if (GetMovementOnGrid().y > 0){
+                world.transform.pos[index].y = grid.cells[_current_cell].center.y;
+            }
+        }
+        if (grid.cells[_left_cell].is_wall == true){
+            if (GetMovementOnGrid().x < 0){
+                world.transform.pos[index].x = grid.cells[_current_cell].center.x;
+            }
+        }
+        if (grid.cells[_right_cell].is_wall == true){
+            if (GetMovementOnGrid().x > 0){
+                world.transform.pos[index].x = grid.cells[_current_cell].center.x;
+            }
+        }
+
+
+    }
 
     Vector2 GetActiveCellCoords(Vector2 position, Grid& grid)
     {

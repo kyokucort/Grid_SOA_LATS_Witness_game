@@ -14,6 +14,7 @@ namespace WorldManager{
         world.active_level = 0;
         world.loaded_levels.push_back(SpawnLevel({0, 0}, 14, 8));
         world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
+
         CursorManager::Init(world, World_FindCursor(world), world.loaded_levels[0].grid.cells[0].center);
         CameraController::Init(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -48,7 +49,7 @@ namespace WorldManager{
 
     void Update_World(World& world, float dt)
     {
-        assert(World_FindCursor(world) >= 0 && "Whoops, length can't possibly be negative! (didn't we just check 10 lines ago?) Tell jsmith");
+        assert(World_FindCursor(world) >= 0 && "We need the cursor to exist as an entity");
         
         MovementSystem::Update(world, dt);
         CollisionSystem::Update(world);
