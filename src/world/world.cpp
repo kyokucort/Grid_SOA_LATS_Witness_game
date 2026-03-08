@@ -15,7 +15,6 @@ namespace WorldManager{
         world.loaded_levels.push_back(SpawnLevel({0, 0}, 14, 8));
         world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
 
-        CursorManager::Init(world, World_FindCursor(world), world.loaded_levels[0].grid.cells[0].center);
         CameraController::Init(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 // BORDEL POUR DEBUGGER UN INIT WORLD MAIS A REMPLACER PAR UN CHARGEMENT PROPRE DU FICHIER MONDE
@@ -24,7 +23,7 @@ namespace WorldManager{
         _level_center.x += world.loaded_levels[world.active_level].grid.width * CELL_SIZE_WORLD/2;
         _level_center.y += world.loaded_levels[world.active_level].grid.height * CELL_SIZE_WORLD/2;
         CameraController::SetTarget(camera_control, _level_center);
-        SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center);
+        SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center, JobType::JOB_MAGE);
         SpawnCursor(world, {0, 0});
         CursorManager::Init(world, World_FindCursor(world), {64, 64});
         SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);

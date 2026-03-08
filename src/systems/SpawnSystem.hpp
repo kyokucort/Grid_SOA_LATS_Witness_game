@@ -5,9 +5,10 @@
 #include "pools/EntityPool.hpp"
 #include "pools/TransformPool.hpp"
 
-int CreateEntity(EntityPool& pool);
+int CreateEntity(World& w);
+void BaseEntitySetup(World& w, int index);
 void DestroyEntity(World& w, int e);
-int SpawnPlayer(World& world, Vector2 pos);
+int SpawnPlayer(World& world, Vector2 pos, JobType job);
 int SpawnWall(World& world, Vector2 pos);
 int SpawnFloorGrass(World& world, Vector2 pos);
 int SpawnCellConnector(World& world, Vector2 pos);

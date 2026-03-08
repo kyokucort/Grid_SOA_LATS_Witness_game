@@ -14,6 +14,7 @@ namespace MovementSystem
 
             if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
             {
+                if (world.job.type[i] != JobType::JOB_MAGE) continue;
                 Update_Player(world.transform.pos[i], dt);
             }
             else if (world.entity.type[i] == EntityType::ENTITY_CURSOR)

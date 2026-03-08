@@ -6,6 +6,7 @@
 #include "pools/ColliderPool.hpp"
 #include "pools/MovePool.hpp"
 #include "pools/CursorPool.hpp"
+#include "pools/JobPool.hpp"
 #include "levels/level.hpp"
 #include "spatial/Grid.hpp"
 #include "cursor/Cursor.hpp"
@@ -28,6 +29,7 @@ struct World
     MovePool move;
     RenderPool render;
     ColliderPool collider;
+    JobPool job;
     std::vector<CollisionEvent> collision_events;
     CursorPool cursor;
 };

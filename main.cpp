@@ -1,10 +1,9 @@
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
-#include "modules/raygui.h"
+#include "externals/gui/raygui.h"
 
 #include <stdio.h>
 #include <string>
-#include "src/modules/buttons/button.hpp"
 #include "src/world/world.hpp"
 #include "systems/SpawnSystem.hpp"
 #include "systems/RenderSystem.hpp"

@@ -6,7 +6,6 @@ RAYLIB_PATH=$(brew --prefix raylib)
 
 $CXX $CXXFLAGS \
 main.cpp \
-src/modules/buttons/button.cpp \
 src/systems/SpawnSystem.cpp \
 src/systems/CollisionSystem.cpp \
 src/systems/GameplaySystem.cpp \

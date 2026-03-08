@@ -1,18 +1,34 @@
 #include "SpawnSystem.hpp"
 #include "assets/TextureID.hpp"
 
-int CreateEntity(EntityPool& pool)
+int CreateEntity(World& w)
 {
     for (int i = 0; i < MAX_ENTITIES; i++)
     {
-        if (!pool.alive[i])
+        if (!w.entity.alive[i])
         {
-            pool.alive[i] = true;
-            pool.count++;
+            BaseEntitySetup(w, i);
+            w.entity.count++;
             return i;
         }
     }
     return -1;
+}
+
+void BaseEntitySetup(World& w, int index)
+{
+    
+    // Entity
+    w.entity.alive[index] = true;
+    
+    // Collider
+    w.collider.has[index] = false;
+
+    // Cursor
+    w.cursor.has[index] = false;
+
+    // Job
+    w.job.has[index] = false;
 }
 
 void DestroyEntity(World& w, int e)
@@ -21,9 +37,9 @@ void DestroyEntity(World& w, int e)
 }
 
 
-int SpawnPlayer(World& world, Vector2 pos)
+int SpawnPlayer(World& world, Vector2 pos, JobType job)
 {
-    int e = CreateEntity(world.entity);
+    int e = CreateEntity(world);
     if (e == -1) return -1;
 
     // Type
@@ -40,11 +56,15 @@ int SpawnPlayer(World& world, Vector2 pos)
     world.render.src[e] = {0, 0, 24, 24};
     world.render.texture[e] = TextureID::Player;
 
+    // Job
+    world.job.has[e] = true;
+    world.job.type[e] = job;
+
     return e;
 }
 
 int SpawnWall(World& world, Vector2 pos){
-    int e = CreateEntity(world.entity);
+    int e = CreateEntity(world);
     if (e == -1) return -1;
 
     // Type
@@ -67,7 +87,7 @@ int SpawnWall(World& world, Vector2 pos){
 
 
 int SpawnFloorGrass(World& world, Vector2 pos){
-    int e = CreateEntity(world.entity);
+    int e = CreateEntity(world);
     if (e == -1) return -1;
 
     // Type
@@ -90,7 +110,7 @@ int SpawnFloorGrass(World& world, Vector2 pos){
 
 
 int SpawnCellConnector(World& world, Vector2 pos){
-    int e = CreateEntity(world.entity);
+    int e = CreateEntity(world);
     if (e == -1) return -1;
 
     // Type
@@ -116,7 +136,7 @@ int SpawnCellConnector(World& world, Vector2 pos){
 }
 
 int SpawnCursor(World& world, Vector2 pos){
-    int e = CreateEntity(world.entity);
+    int e = CreateEntity(world);
     if (e == -1) return -1;
 
     // Type

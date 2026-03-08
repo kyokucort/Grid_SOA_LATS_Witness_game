@@ -1,6 +1,6 @@
 #include "Editor.hpp"
 
-#include "modules/raygui.h"
+#include "externals/gui/raygui.h"
 #include <string>
 #include <math.h>
 #include "raymath.h"
