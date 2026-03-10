@@ -11,6 +11,7 @@ src/systems/CollisionSystem.cpp \
 src/systems/GameplaySystem.cpp \
 src/systems/RenderSystem.cpp \
 src/systems/MovementSystem.cpp \
+src/systems/HoverSystem.cpp \
 src/world/world.cpp \
 src/levels/level.cpp \
 src/cursor/Cursor.cpp \

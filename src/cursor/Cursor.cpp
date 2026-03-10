@@ -20,26 +20,13 @@ namespace CursorManager
 
     void Update(World& world, int index, Grid& grid)
     {
-        //HideCursor();
-        world.collider.bounds[index].x = world.transform.pos[index].x - world.transform.size[index].x/2;
+        world.active_cell = GetActiveCellIndex(world.transform.pos[index], grid);
+        world.collider.bounds[index].x = world.transform.pos[index].x - world.transform.size[index].x/2; // On bouge le collider bounds ici. Bonne idee ? 
         world.collider.bounds[index].y = world.transform.pos[index].y - world.transform.size[index].y/2;
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            if (!world.cursor.is_free[index])
-            {
-                EnableCursor();
-                HideCursor();
-            }
-            else 
-            {
-                SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-                DisableCursor();
-                grid.path.clear();
-                Vector2 _cell = GetActiveCellCoords(world.transform.pos[index], grid);
-                grid.path.push_back(_cell);
-            }
-            world.cursor.is_free[index] = !world.cursor.is_free[index];
-        }
+
+
+        HandleClic(world, index, grid);
+
         if (!world.cursor.is_free[index])
         {
             HandleGridMovement(world, index, grid);
@@ -48,14 +35,33 @@ namespace CursorManager
         else
         {
             world.transform.pos[index] = GetMousePosition();
-            //world.transform.pos[index].x -= world.transform.size[index].x/2;
-            //world.transform.pos[index].y -= world.transform.size[index].y/2;
-            //world.transform.pos[index].x -= 64;
-            //world.transform.pos[index].y -= 32;
         }
     }
 
 
+    void HandleClic(World& w, int index, Grid& grid)
+    {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            if (!w.cursor.is_free[index])
+            {
+                EnableCursor();
+                HideCursor();
+                w.cursor.is_free[index] = !w.cursor.is_free[index];
+                return;
+            }
+
+            SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+            DisableCursor();
+            grid.path.clear();
+            Vector2 _cell = GetActiveCellCoords(w.transform.pos[index], grid);
+            grid.path.push_back(_cell);
+            w.cursor.is_free[index] = !w.cursor.is_free[index];
+            ///////////////////////////////////////
+            /// Ici grosse fonction a etablir (vider, le path, enlever les wall...). Enfin, noeud important en tout cas
+        }
+
+    }
 
 
 
@@ -114,17 +120,15 @@ namespace CursorManager
 
         }
 
-        Vector2 _coords = GetActiveCellCoords(_pos, grid);
-        int _test_cell = GetCellFromCoords(grid, _coords.x, _coords.y);
+        int _test_cell = GetActiveCellIndex(_pos, grid);
+        Vector2 _coords = grid.cells[_test_cell].coords;
         if (_test_cell >= 0)
         {
             grid.cells[_test_cell].is_wall = true;
         }
 
-
         CheckWalls(world, index, grid, _coords);
 
-        printf("Coords: %0.1f - %0.1f", _coords.x, _coords.y);
 
 
     //#####################################################################
@@ -134,7 +138,6 @@ namespace CursorManager
 
     void CheckWalls(World& world, int index, Grid& grid, Vector2 coords)
     {
-        int _size = grid.cells.size();
         int _current_cell = GetCellFromCoords(grid, coords.x, coords.y);
         if (_current_cell < 0 ) return;
 
@@ -167,6 +170,20 @@ namespace CursorManager
 
     }
 
+    int GetActiveCellIndex(Vector2 position, Grid& grid)
+    {
+        for (int i = 0; i < grid.cells.size(); i++){
+            Vector2 _center = grid.cells[i].center;
+            Rectangle _rec = {_center.x - CELL_SIZE_WORLD/2, _center.y - CELL_SIZE_WORLD/2, CELL_SIZE_WORLD, CELL_SIZE_WORLD};
+            if (CheckCollisionPointRec(position, _rec))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
     Vector2 GetActiveCellCoords(Vector2 position, Grid& grid)
     {
         for (int i = 0; i < grid.cells.size(); i++){
@@ -192,22 +209,6 @@ namespace CursorManager
         }
     }
 
-
-    Vector2 GetCurrentCellCoords(Vector2 position, Grid& grid)
-    {
-        Vector2 _result = grid.cells[0].coords;
-        for (int i = 0; i < grid.cells.size(); i++)
-        {
-
-            float _distance_next = Vector2Distance(position, grid.cells[i].center);
-            float _distance_current = Vector2Distance(position, _result);
-            if (_distance_next < _distance_current)
-            {
-                _result = grid.cells[i].coords;
-            }
-        }
-        return _result;
-    }
 
 
 

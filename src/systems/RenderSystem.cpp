@@ -30,6 +30,18 @@ namespace RenderSystem
 
             cmd.dst = _dest;
             cmd.color = world.render.color[i];
+            if (world.hover.hovered[i])
+            {
+                if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
+                {
+                    cmd.color = BLUE;
+                }
+                if (world.entity.type[i] == EntityType::ENTITY_CELL_CONNECTOR)
+                {
+                    cmd.color = BLUE;
+                }
+
+            }
 
             queue.push_back(cmd);
         }
@@ -80,7 +92,7 @@ namespace RenderSystem
 
         for (int i = 0; i < _grid.cells.size(); i++)
         {
-            DrawCircleV(_grid.cells[i].center, 2.0f, RAYWHITE);
+            //DrawCircleV(_grid.cells[i].center, 12.0f, RAYWHITE);
             DrawText(TextFormat("%0.1f - %0.1f", _grid.cells[i].coords.x, _grid.cells[i].coords.y), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 48, 12, WHITE);
             DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 36, 12, WHITE);
             DrawText(TextFormat("WALL = %i", _grid.cells[i].is_wall), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 24, 12, WHITE);

@@ -13,8 +13,8 @@ void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 positi
 
 void Init_Cells(Grid& grid)
 {
-    for (int x = 0; x < grid.width; x++){
-        for (int y = 0; y < grid.height; y++){
+    for (int y = 0; y < grid.height; y++){
+        for (int x = 0; x < grid.width; x++){
             Cell _cell;
             Vector2 _center = grid.position;
             _center.x += x * grid.cell_size + (grid.cell_size/2);
@@ -28,6 +28,11 @@ void Init_Cells(Grid& grid)
     }
 }
 
+Cell& Grid_GetCell(Grid& grid, int x, int y)
+{
+    return grid.cells[y * grid.width + x];
+}
+
 
 void CellInsertEntity(Grid& grid, int entity, Vector2 coords)
 {
@@ -38,6 +43,27 @@ void CellInsertEntity(Grid& grid, int entity, Vector2 coords)
     _cell.entities[_cell.count] = entity;
 
     _cell.count += 1;
+}
+
+void Cell_AddEntity(Cell& cell, int entity)
+{
+    if (cell.count >= MAX_ENTITIES_PER_CELL) return;
+
+    cell.entities[cell.count] = entity;
+    cell.count++;
+}
+
+void Cell_RemoveEntity(Cell& cell, int entity)
+{
+    for (int i = 0; i < cell.count; i++)
+    {
+        if (cell.entities[i] == entity)
+        {
+            cell.entities[i] = cell.entities[cell.count - 1];
+            cell.count--;
+            return;
+        }
+    }
 }
 
 

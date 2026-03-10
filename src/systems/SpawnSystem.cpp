@@ -135,7 +135,7 @@ int SpawnCellConnector(World& world, Vector2 pos){
 
     // Render
     world.render.layer[e] = 1;
-    world.render.color[e] = GRAY;
+    world.render.color[e] = WHITE;
     world.render.src[e] = {0, 0, 32, 32};
     world.render.texture[e] = TextureID::Cell_Connector;
 

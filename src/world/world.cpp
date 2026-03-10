@@ -3,6 +3,7 @@
 #include "systems/MovementSystem.hpp"
 #include "systems/CollisionSystem.hpp"
 #include "systems/GameplaySystem.hpp"
+#include "systems/HoverSystem.hpp"
 #include "assert.h"
 
 
@@ -16,44 +17,38 @@ namespace WorldManager{
         world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
 
         CameraController::Init(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
+        CursorManager::Init(world, SpawnCursor(world, {0, 0}), {64, 64});
+        Init_Levels(world);
 
 // BORDEL POUR DEBUGGER UN INIT WORLD MAIS A REMPLACER PAR UN CHARGEMENT PROPRE DU FICHIER MONDE
 
-        Vector2 _level_center = world.loaded_levels[world.active_level].position;
-        _level_center.x += world.loaded_levels[world.active_level].grid.width * CELL_SIZE_WORLD/2;
-        _level_center.y += world.loaded_levels[world.active_level].grid.height * CELL_SIZE_WORLD/2;
-        CameraController::SetTarget(camera_control, _level_center);
-        //SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center, JobType::JOB_MAGE);
-        SpawnCursor(world, {0, 0});
-        CursorManager::Init(world, World_FindCursor(world), {64, 64});
         SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);
-        SpawnWall(world, world.loaded_levels[0].grid.cells[1].center);
-        SpawnWall(world, world.loaded_levels[0].grid.cells[8].center);
-        SpawnWall(world, world.loaded_levels[0].grid.cells[16].center);
-        Init_Levels(world);
     }
 
+
+
+// Separer la logic de Level et tout dans un Level.cpp ou pas de Level.cpp du tout ?
 
     void Init_Levels(World& world)
     {
         for (int i = 0; i < world.loaded_levels.size(); i++){
 
             Grid& _grid = world.loaded_levels[i].grid;
-            for (int c = 0; c < world.loaded_levels[i].grid.cells.size(); c++){
+            for (int c = 0; c < _grid.cells.size(); c++){
                 Cell& _cell = _grid.cells[c];
-
-                Vector2 _pos = _cell.center;
-                CellInsertEntity(_grid, SpawnFloorGrass(world, _pos), _cell.coords);
-
-                //world.loaded_levels[i].grid.cells[c].entities[0] = SpawnFloorGrass(world, _pos);
-                //world.loaded_levels[i].grid.cells[c].entities[1] = SpawnCellConnector(world, _pos);
+                CellInsertEntity(_grid, SpawnFloorGrass(world, _cell.center), _cell.coords);
+                CellInsertEntity(_grid, SpawnCellConnector(world, _cell.center), _cell.coords);
             }
             int _cell_start_index = GetCellFromCoords(_grid, 4, 4);
             Cell& _cell_start = _grid.cells[_cell_start_index];
-            
             CellInsertEntity(_grid, SpawnPlayer(world, _cell_start.center, JobType::JOB_MAGE), _cell_start.coords);
         }
     }
+
+
+// #########################################################################
+// MAIN WORLD UPDATE ENTRY
+// #########################################################################
 
     void Update_World(World& world, float dt)
     {
@@ -61,8 +56,11 @@ namespace WorldManager{
         
         MovementSystem::Update(world, dt);
         CollisionSystem::Update(world);
+        HoverSystem::Update(world);
         GameplaySystem::Update(world);
 
+
+        // On check si le player a change de level (trouver une autre place. Collision ? Gameplay ? Level?)
         int _player = World_FindPlayer(world);
         Vector2 _playerpos = world.transform.pos[_player];
         int newLevel = World_FindLevelContaining(world, _playerpos);
@@ -73,6 +71,10 @@ namespace WorldManager{
         }
     }
 
+
+/////////////////////////////////////////////////////////
+/// HELPERS
+/////////////////////////////////////////////////////////
 
     int World_FindLevelContaining(const World& world, Vector2 pos)
     {

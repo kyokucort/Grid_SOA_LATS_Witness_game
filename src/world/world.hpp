@@ -6,6 +6,7 @@
 #include "pools/ColliderPool.hpp"
 #include "pools/MovePool.hpp"
 #include "pools/CursorPool.hpp"
+#include "pools/HoverPool.hpp"
 #include "pools/JobPool.hpp"
 #include "levels/level.hpp"
 #include "spatial/Grid.hpp"
@@ -24,14 +25,16 @@ struct World
 {
     std::vector<Level> loaded_levels;
     int active_level;
+    int active_cell;
     EntityPool entity;
     TransformPool transform;
     MovePool move;
     RenderPool render;
     ColliderPool collider;
-    JobPool job;
     std::vector<CollisionEvent> collision_events;
+    JobPool job;
     CursorPool cursor;
+    HoverPool hover;
 };
 
 namespace WorldManager
