@@ -50,17 +50,29 @@ int SpawnPlayer(World& world, Vector2 pos, JobType job)
     world.transform.size[e] = {24, 24};
     world.transform.scale[e] = {4,4};
 
-    // Render
-    world.render.layer[e] = 3;
-    world.render.color[e] = WHITE;
-    world.render.src[e] = {0, 0, 24, 24};
-    world.render.texture[e] = TextureID::Player;
+    //Collider
+    world.collider.has[e] = true;
+    world.collider.bounds[e] = {pos.x - world.transform.size[e].x/2, pos.y - world.transform.size[e].y/2, 32, 32};
+    world.collider.is_under_cursor[e] = false;
 
     // Job
     world.job.has[e] = true;
     world.job.type[e] = job;
 
+    // Render
+    world.render.layer[e] = 3;
+    world.render.color[e] = WHITE;
+    world.render.src[e] = {0, 0, 24, 24};
+    world.render.texture[e] = GetTextureFromJob(job);
+
     return e;
+}
+
+TextureID GetTextureFromJob(JobType job){
+    if (job == JobType::JOB_MAGE){
+        return TextureID::Mage;
+    }
+    return TextureID::NoTexture;
 }
 
 int SpawnWall(World& world, Vector2 pos){
@@ -145,7 +157,7 @@ int SpawnCursor(World& world, Vector2 pos){
     // Transform
     world.transform.pos[e] = pos;
     world.transform.size[e] = {64, 64};
-    world.transform.scale[e] = {1,1};
+    world.transform.scale[e] = {1, 1};
 
     // Render
     world.render.layer[e] = 6;

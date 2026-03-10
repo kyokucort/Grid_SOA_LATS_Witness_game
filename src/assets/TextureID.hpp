@@ -3,7 +3,7 @@
 
 enum class TextureID : uint16_t
 {
-    Player,
+    Mage,
     Cursor_Base,
     Cell_Connector,
     Floor_Grass,
@@ -11,5 +11,6 @@ enum class TextureID : uint16_t
     Enemy,
     Tileset,
     Bullet,
+    NoTexture,
     COUNT
 };

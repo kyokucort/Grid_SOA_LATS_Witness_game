@@ -13,6 +13,7 @@ struct Cursor {
     float slide_speed;
     bool can_turn;
     bool is_free;
+    int hovered;
 };
 
 

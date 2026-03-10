@@ -23,7 +23,7 @@ namespace WorldManager{
         _level_center.x += world.loaded_levels[world.active_level].grid.width * CELL_SIZE_WORLD/2;
         _level_center.y += world.loaded_levels[world.active_level].grid.height * CELL_SIZE_WORLD/2;
         CameraController::SetTarget(camera_control, _level_center);
-        SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center, JobType::JOB_MAGE);
+        //SpawnPlayer(world, world.loaded_levels[0].grid.cells[4].center, JobType::JOB_MAGE);
         SpawnCursor(world, {0, 0});
         CursorManager::Init(world, World_FindCursor(world), {64, 64});
         SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);
@@ -38,11 +38,20 @@ namespace WorldManager{
     {
         for (int i = 0; i < world.loaded_levels.size(); i++){
 
+            Grid& _grid = world.loaded_levels[i].grid;
             for (int c = 0; c < world.loaded_levels[i].grid.cells.size(); c++){
-                Vector2 _pos = world.loaded_levels[i].grid.cells[c].center;
-                world.loaded_levels[i].grid.cells[c].entities[0] = SpawnFloorGrass(world, _pos);
-                SpawnCellConnector(world, _pos);
+                Cell& _cell = _grid.cells[c];
+
+                Vector2 _pos = _cell.center;
+                CellInsertEntity(_grid, SpawnFloorGrass(world, _pos), _cell.coords);
+
+                //world.loaded_levels[i].grid.cells[c].entities[0] = SpawnFloorGrass(world, _pos);
+                //world.loaded_levels[i].grid.cells[c].entities[1] = SpawnCellConnector(world, _pos);
             }
+            int _cell_start_index = GetCellFromCoords(_grid, 4, 4);
+            Cell& _cell_start = _grid.cells[_cell_start_index];
+            
+            CellInsertEntity(_grid, SpawnPlayer(world, _cell_start.center, JobType::JOB_MAGE), _cell_start.coords);
         }
     }
 

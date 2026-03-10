@@ -60,7 +60,7 @@ namespace RenderSystem
         for (int i=0 ; i < MAX_ENTITIES; i++)
         {
             if (!world.entity.alive[i]) continue;
-            //DrawRectangleLinesEx(world.collider.bounds[i], 2.0f, PINK);
+            DrawRectangleLinesEx(world.collider.bounds[i], 2.0f, PINK);
         }
         
     }
@@ -82,6 +82,7 @@ namespace RenderSystem
         {
             DrawCircleV(_grid.cells[i].center, 2.0f, RAYWHITE);
             DrawText(TextFormat("%0.1f - %0.1f", _grid.cells[i].coords.x, _grid.cells[i].coords.y), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 48, 12, WHITE);
+            DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 36, 12, WHITE);
             DrawText(TextFormat("WALL = %i", _grid.cells[i].is_wall), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 24, 12, WHITE);
         }
 

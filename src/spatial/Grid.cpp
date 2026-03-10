@@ -1,4 +1,5 @@
 #include "Grid.hpp"
+#include "assert.h"
 
 
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position)
@@ -21,19 +22,22 @@ void Init_Cells(Grid& grid)
             _cell.coords = {static_cast<float>(x), static_cast<float>(y)};
             _cell.center = _center;
             _cell.is_wall = false;
+            _cell.count = 0;
             grid.cells.push_back(_cell);
         }
     }
 }
 
 
-void GridInsert(Grid& grid, int entity, Vector2 pos)
+void CellInsertEntity(Grid& grid, int entity, Vector2 coords)
 {
-    int cx = pos.x / grid.cell_size;
-    int cy = pos.y / grid.cell_size;
-    Cell& c = grid.cells[cy*grid.width+cx];
+    int _cell_id = GetCellFromCoords(grid, coords.x, coords.y);
+    assert(_cell_id >= 0 && "No cell on coords");
+    Cell& _cell = grid.cells[_cell_id];
 
-    c.entities[c.count++] = entity;
+    _cell.entities[_cell.count] = entity;
+
+    _cell.count += 1;
 }
 
 

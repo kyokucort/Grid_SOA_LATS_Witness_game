@@ -6,42 +6,23 @@
 
 namespace CursorManager
 {
-    // Bordel ici. en train de reformarter pour que le cursor soit une entity
-    // Question : les valeurs specifiques au cursor (typiquement slide speed), dois-je les integrer dans world directement
-    // world.cursor_slide_speed
-    // ou
-    // les integrer dans la movepool (mais donc beaucoup de memoire pour un seul element / avantage : s'integre mieux au design general
-    // Essayer d'anticiper les futurs interactions
-    // Pour le moment probaablement mieux pool (beaucoup plkus scalable
-    
-
     
     void Init(World& world, int index, Vector2 position)
     {
-        //assert(world.cursor.has[index] == true && "The entity has no cursor component");
+        assert(world.cursor.has[index] == true && "The entity has no cursor component");
         world.transform.pos[index] = position;
         world.cursor.can_turn[index] = true;
         world.cursor.base_speed[index] = CELL_SIZE_WORLD;
         world.cursor.slide_speed[index] = CELL_SIZE_WORLD/2;
         world.cursor.is_free[index] = true;
-        //HideCursor();
     }
 
-
-    /*void Init(Cursor& cursor, Grid& grid)
-    {
-        cursor.position = grid.position;
-        cursor.can_turn = true;
-        cursor.move_speed = CELL_SIZE_WORLD;
-        cursor.slide_speed = CELL_SIZE_WORLD/2;
-        cursor.is_free = true;
-        //HideCursor();
-    }
-    */
 
     void Update(World& world, int index, Grid& grid)
     {
         //HideCursor();
+        world.collider.bounds[index].x = world.transform.pos[index].x - world.transform.size[index].x/2;
+        world.collider.bounds[index].y = world.transform.pos[index].y - world.transform.size[index].y/2;
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             if (!world.cursor.is_free[index])
@@ -67,6 +48,10 @@ namespace CursorManager
         else
         {
             world.transform.pos[index] = GetMousePosition();
+            //world.transform.pos[index].x -= world.transform.size[index].x/2;
+            //world.transform.pos[index].y -= world.transform.size[index].y/2;
+            //world.transform.pos[index].x -= 64;
+            //world.transform.pos[index].y -= 32;
         }
     }
 
@@ -129,8 +114,6 @@ namespace CursorManager
 
         }
 
-        world.collider.bounds[index].x = _pos.x - world.transform.size[index].x/2;
-        world.collider.bounds[index].y = _pos.y - world.transform.size[index].y/2;
         Vector2 _coords = GetActiveCellCoords(_pos, grid);
         int _test_cell = GetCellFromCoords(grid, _coords.x, _coords.y);
         if (_test_cell >= 0)
@@ -151,6 +134,7 @@ namespace CursorManager
 
     void CheckWalls(World& world, int index, Grid& grid, Vector2 coords)
     {
+        int _size = grid.cells.size();
         int _current_cell = GetCellFromCoords(grid, coords.x, coords.y);
         if (_current_cell < 0 ) return;
 

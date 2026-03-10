@@ -25,5 +25,5 @@ struct Grid
 
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position);
 void Init_Cells(Grid& grid);
-void GridInsert(Grid& g, int entity, Vector2 pos);
+void CellInsertEntity(Grid& grid, int entity, Vector2 coords);
 int GetCellFromCoords(Grid& grid, int x, int y);
