@@ -93,9 +93,9 @@ namespace RenderSystem
         for (int i = 0; i < _grid.cells.size(); i++)
         {
             //DrawCircleV(_grid.cells[i].center, 12.0f, RAYWHITE);
-            DrawText(TextFormat("%0.1f - %0.1f", _grid.cells[i].coords.x, _grid.cells[i].coords.y), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 48, 12, WHITE);
+            //DrawText(TextFormat("%0.1f - %0.1f", _grid.cells[i].coords.x, _grid.cells[i].coords.y), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 48, 12, WHITE);
             DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 36, 12, WHITE);
-            DrawText(TextFormat("WALL = %i", _grid.cells[i].is_wall), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 24, 12, WHITE);
+            //DrawText(TextFormat("WALL = %i", _grid.cells[i].is_wall), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 24, 12, WHITE);
         }
 
         if (_grid.path.size() > 1){
@@ -112,14 +112,14 @@ namespace RenderSystem
             }
         }
 
-        DrawText(TextFormat("Level : %i", index), _grid.position.x, _grid.position.y, 32, RED);
+        //DrawText(TextFormat("Level : %i", index), _grid.position.x, _grid.position.y, 32, RED);
         //DrawText(TextFormat("Collisions : %i", world.collision_events.size()), _grid.position.x, _grid.position.y + 128, 32, WHITE);
         DrawText(TextFormat("PATH SIZE : %i", _grid.path.size()), _grid.position.x, _grid.position.y + 128, 32, WHITE);
         Rectangle _border = {_grid.position.x, _grid.position.y, _grid.width * _grid.cell_size, _grid.height * _grid.cell_size};
         DrawRectangleLinesEx(_border, 4.0f, GRAY);
         if (_grid.path.size() > 0){
-            DrawText(TextFormat("Last Node : %0.1f - %0.1f", _grid.path.back().x, _grid.path.back().y), _grid.position.x, _grid.position.y + 256, 32, WHITE);
-            DrawText(TextFormat("First Node : %0.1f - %0.1f", _grid.path[0].x, _grid.path[0].y), _grid.position.x, _grid.position.y + 512, 32, WHITE);
+            //DrawText(TextFormat("Last Node : %0.1f - %0.1f", _grid.path.back().x, _grid.path.back().y), _grid.position.x, _grid.position.y + 256, 32, WHITE);
+            //DrawText(TextFormat("First Node : %0.1f - %0.1f", _grid.path[0].x, _grid.path[0].y), _grid.position.x, _grid.position.y + 512, 32, WHITE);
         }
     }
 

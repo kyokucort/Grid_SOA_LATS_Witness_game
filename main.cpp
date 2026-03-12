@@ -76,6 +76,7 @@ void Init()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "INTER LIGERE");
     InitAudioDevice();
     ToggleFullscreen();
+    SetWindowMonitor(0);
 
 
     AssetsLoad(assets);

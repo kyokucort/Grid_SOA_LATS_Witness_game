@@ -1,5 +1,6 @@
 #include "SpawnSystem.hpp"
 #include "assets/TextureID.hpp"
+#include "modules/math/grid_math.hpp"
 
 int CreateEntity(World& w)
 {
@@ -40,23 +41,27 @@ void DestroyEntity(World& w, int e)
 }
 
 
-int SpawnPlayer(World& world, Vector2 pos, JobType job)
+int SpawnPlayer(World& world, Vector2i coords, JobType job)
 {
     int e = CreateEntity(world);
     if (e == -1) return -1;
+
+    Grid _grid = world.loaded_levels[world.active_level].grid;
+    Vector2 _pos = CellCenter(coords, _grid.position, CELL_SIZE_WORLD);
+    
 
     // Type
     world.entity.type[e] = EntityType::ENTITY_PLAYER;
 
     // Transform
-    world.transform.pos[e] = pos;
+    world.transform.pos[e] = _pos;
     world.transform.size[e] = {24, 24};
     world.transform.scale[e] = {4,4};
-    world.transform.cell[e] = {3, 3};
+    world.transform.cell[e] = coords;
 
     //Collider
     world.collider.has[e] = true;
-    world.collider.bounds[e] = {pos.x - world.transform.size[e].x/2, pos.y - world.transform.size[e].y/2, 32, 32};
+    world.collider.bounds[e] = {_pos.x - world.transform.size[e].x/2, _pos.y - world.transform.size[e].y/2, 32, 32};
     world.collider.is_under_cursor[e] = false;
 
     // Job
@@ -65,6 +70,7 @@ int SpawnPlayer(World& world, Vector2 pos, JobType job)
 
     // Hover
     world.hover.has[e] = true;
+    //
 
     // Render
     world.render.layer[e] = 3;

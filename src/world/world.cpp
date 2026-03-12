@@ -33,8 +33,8 @@ namespace WorldManager{
 
     void Init_Levels(World& world)
     {
-        for (int i = 0; i < world.loaded_levels.size(); i++){
-
+        for (int i = 0; i < world.loaded_levels.size(); i++)
+        {
             Grid& _grid = world.loaded_levels[i].grid;
             for (int c = 0; c < _grid.cells.size(); c++){
                 Cell& _cell = _grid.cells[c];
@@ -43,9 +43,10 @@ namespace WorldManager{
                 Cell_AddEntity(_cell, SpawnCellConnector(world, _cell.center));
             }
 
-            Cell& _cell_start = Grid_GetCell(_grid, 4, 4);
-            Cell_AddEntity(_cell_start, SpawnPlayer(world, _cell_start.center, JobType::JOB_MAGE));
         }
+        Grid& _grid = world.loaded_levels[world.active_level].grid;
+        Cell& _cell_start = Grid_GetCell(_grid, 2, 6);
+        Cell_AddEntity(_cell_start, SpawnPlayer(world, {2, 6}, JobType::JOB_MAGE));
     }
 
 

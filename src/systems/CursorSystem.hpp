@@ -5,16 +5,6 @@
 
 struct World;
 
-struct Cursor {
-    Vector2 position;
-    Vector2 coords;
-    Vector2 anchor;
-    float move_speed;
-    float slide_speed;
-    bool can_turn;
-    bool is_free;
-    int hovered;
-};
 
 
 namespace CursorSystem
@@ -30,4 +20,13 @@ namespace CursorSystem
     Vector2 GetActiveCellCoords(Vector2 position, Grid& grid);
     int GetActiveCellIndex(Vector2 position, Grid& grid);
     void CheckWalls(World& world, int index, Grid& grid, Vector2i coords);
+
+
+
+    void UpdateCursorPhysics(World& w, int index, Vector2 mouse_delta, float dt);
+    void OnCursorEnterCell(World& w, int index, Vector2i new_cell);
+    bool IsNearCellCenter(World& w, int index);
+    void UpdatePath(Grid& grid, Vector2i next_cell);
+    bool CanMovePath(Grid& grid, Vector2i next_cell);
+    bool PathContains(const std::vector<Vector2i>& path, Vector2i cell);
 }

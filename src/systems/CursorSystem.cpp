@@ -5,6 +5,9 @@
 #include "raymath.h"
 #include "modules/math/grid_math.hpp"
 #include "assert.h"
+#include "pools/CursorPool.hpp"
+
+
 
 namespace CursorSystem
 {
@@ -26,8 +29,9 @@ namespace CursorSystem
     void Update(World& w)
     {
         int index = WorldManager::World_FindCursor(w);
+        Level& level = w.loaded_levels[w.active_level];
         Grid& grid = w.loaded_levels[w.active_level].grid;
-        Vector2 _old_pos = w.transform.pos[index];
+        //Vector2 _old_pos = w.transform.pos[index];
         Vector2& _pos = w.transform.pos[index];
         w.collider.bounds[index].x = _pos.x - w.transform.size[index].x/2; // On bouge le collider bounds ici. Bonne idee ? 
         w.collider.bounds[index].y = _pos.y - w.transform.size[index].y/2;
@@ -37,21 +41,46 @@ namespace CursorSystem
 
         if (!w.cursor.is_free[index])
         {
-            HandleGridMovement(w, index, grid);
-            CheckNewCell(w.cursor_cell, grid);
+            Vector2 delta = GetMouseDelta();
+
+            if (w.cursor.axis[index] == CursorAxis::AXIS_NONE)
+            {
+                if (fabs(delta.x) > fabs(delta.y)){
+                    w.cursor.axis[index] = CursorAxis::AXIS_HORIZONTAL;
+                }
+
+                else if (fabs(delta.x) < fabs(delta.y)){
+                    w.cursor.axis[index] = CursorAxis::AXIS_VERTICAL;
+                }
+            }
+
+            UpdateCursorPhysics(w, index, GetMouseDelta(), GetFrameTime());
+            Vector2i new_cell = WorldToCell(level, w.cursor.pos[index]);
+            if (new_cell != w.cursor_cell)
+            {
+                OnCursorEnterCell(w, index, w.cursor_cell);
+                Vector2i _coords = w.cursor_cell;
+                if (grid.path.empty())
+                {
+                    grid.path.push_back(w.cursor_cell);
+                    return;
+                }
+                UpdatePath(grid, w.cursor_cell);
+            }
+
+            if (IsNearCellCenter(w, index))
+            {
+                if (Vector2Length(GetMouseDelta()) > 0.5f) return;
+                w.cursor.axis[index] = CursorAxis::AXIS_NONE;
+            }
+            SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
         }
         else
         {
-            //world.transform.pos[index] = GetMousePosition();
             _pos += GetMouseDelta() * 2;
         }
-
         w.cursor_cell = WorldToCell(w.loaded_levels[w.active_level], _pos);
-        Vector2 _limit = {grid.position.x + (grid.width * CELL_SIZE_WORLD), grid.position.y + (grid.height * CELL_SIZE_WORLD)};
-        if (_pos.x < grid.position.x || _pos.x > _limit.x || _pos.y < grid.position.y || _pos.y > _limit.y)
-        {
-            //_pos = _old_pos;
-        }
+
     }
 
 
@@ -59,22 +88,20 @@ namespace CursorSystem
     {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
+            int p_index = WorldManager::World_FindPlayer(w);
+
             if (!w.cursor.is_free[index])
             {
-                //EnableCursor();
-                //HideCursor();
                 w.cursor.is_free[index] = !w.cursor.is_free[index];
                 return;
             }
-/*
-            int p_index = WorldManager::World_FindPlayer(w);
+
             if (w.hover.hovered[p_index])
             {
                 grid.path.clear();
                 grid.path.push_back(w.cursor_cell);
                 w.cursor.is_free[index] = !w.cursor.is_free[index];
             }
-            */
             ///////////////////////////////////////
             /// Ici grosse fonction a etablir (vider, le path, enlever les wall...). Enfin, noeud important en tout cas
         }
@@ -84,75 +111,154 @@ namespace CursorSystem
 
 
 
-    void HandleGridMovement(World& world, int index, Grid& grid)
+    void UpdateCursorPhysics(World& w, int index, Vector2 mouse_delta, float dt)
     {
-        Vector2& _pos = world.transform.pos[index];
-        Vector2& _anchor = world.cursor.anchor[index];
-        float& _speed = world.cursor.base_speed[index];
-        float& _slide_speed = world.cursor.slide_speed[index];
-        world.cursor.anchor[index] = GetCloserCell(world.transform.pos[index], grid);
+        float accel = 4000.0f;
+        float friction = 20.0f;
 
-    //#####################################################################
-    //#####################################################################
-
-        if (GetMovementOnGrid().x == 0.0f && GetMovementOnGrid().y == 0.0f) return;
-        
-
-    //#####################################################################
-
-        if (GetCloserCellDistance(_pos, grid) < CELL_SIZE_WORLD/16)
+        if (w.cursor.axis[index] == CursorAxis::AXIS_HORIZONTAL)
         {
-            _pos.x += GetMovementOnGrid().x * _speed * GetFrameTime();
-            _pos.y += GetMovementOnGrid().y * _speed * GetFrameTime();
-        }else{
-            float _tween_speed = 30.0f;
-            Vector2 _tween_direction = world.cursor.anchor[index] - _pos;
-            if (abs(abs(_pos.x) - abs(_anchor.x)) < abs(abs(_pos.y) - abs(_anchor.y)))
-            {
-                _pos.y += GetMovementOnGrid().y * _speed * GetFrameTime();
-                
-                if (GetMouseDelta().y > 0) 
-                    _pos.y += abs(GetMovementOnGrid().x) * _slide_speed * GetFrameTime();
-                else 
-                    _pos.y -= abs(GetMovementOnGrid().x) * _slide_speed * GetFrameTime();
-
-                if (abs(_tween_direction.x) > 0.1f){
-                    if (_tween_direction.x > 0) _pos.x += GetFrameTime() * _tween_speed; 
-                    else if (_tween_direction.x < 0) _pos.x -= GetFrameTime() * _tween_speed; 
-
-                }
-            }
-            else
-            {
-                _pos.x += GetMovementOnGrid().x * _speed * GetFrameTime();
-                if (GetMouseDelta().x > 0) 
-                    _pos.x +=  abs(GetMovementOnGrid().y) * _slide_speed * GetFrameTime();
-                else 
-                    _pos.x -= abs(GetMovementOnGrid().y) * _slide_speed * GetFrameTime();
-                
-                if (abs(_tween_direction.y) > 0.1f){
-                    if (_tween_direction.y > 0) _pos.y += GetFrameTime() * _tween_speed; 
-                    else if (_tween_direction.y < 0) _pos.y -= GetFrameTime() * _tween_speed; 
-                }
-            }
-
+            w.cursor.velocity[index].x += mouse_delta.x * accel * dt;
+            w.cursor.velocity[index].x -= w.cursor.velocity[index].x * friction * dt;
+            w.transform.pos[index].x += w.cursor.velocity[index].x * dt;
+        }
+        else if (w.cursor.axis[index] == CursorAxis::AXIS_VERTICAL)
+        {
+            w.cursor.velocity[index].y += mouse_delta.y * accel * dt;
+            w.cursor.velocity[index].y -= w.cursor.velocity[index].y * friction * dt;
+            w.transform.pos[index].y += w.cursor.velocity[index].y * dt;
         }
 
-        //int _test_cell = GetActiveCellIndex(_pos, grid);
-        Vector2i _coords = world.cursor_cell;
-        //if (_test_cell >= 0)
-        //{
-        //    grid.cells[_test_cell].is_wall = true;
-        //}
+        Grid& _grid = w.loaded_levels[w.active_level].grid;
+        Vector2 center = CellCenter(w.cursor_cell, _grid.position, CELL_SIZE_WORLD);
 
-        CheckWalls(world, index, grid, _coords);
+        if (w.cursor.axis[index] == CursorAxis::AXIS_HORIZONTAL)
+        {
+            //if (!IsNearCellCenter(w, index)) return;
+            w.transform.pos[index].y = center.y;
+        }
 
-
-
-    //#####################################################################
-    //#####################################################################
+        if (w.cursor.axis[index] == CursorAxis::AXIS_VERTICAL)
+        {
+            //if (!IsNearCellCenter(w, index)) return;
+            w.transform.pos[index].x = center.x;
+        }
 
     }
+
+
+    void OnCursorEnterCell(World& w, int index, Vector2i new_cell)
+    {
+        Grid& grid = w.loaded_levels[w.active_level].grid;
+
+        if (!IsCellInside(new_cell, grid.width, grid.height))
+            return;
+
+        if (!CanMovePath(grid, new_cell))
+            return;
+
+        w.cursor.cell[index] = new_cell;
+
+        grid.path.push_back(new_cell);
+        w.cursor.axis[index] = CursorAxis::AXIS_NONE;
+    }
+
+    bool IsNearCellCenter(World& w, int index)
+    {
+        Level& level = w.loaded_levels[w.active_level];
+        Grid& grid = level.grid;
+
+        Vector2 center = CellCenter(w.cursor_cell, grid.position, CELL_SIZE_WORLD);
+        Vector2 pos = w.transform.pos[index];
+
+        float dist = Vector2Distance(pos, center);
+
+        return dist < level.grid.cell_size * 0.15f;
+    }
+
+    //#####################################################################
+    //#####################################################################
+    //#####################################################################
+    //#####################################################################
+    //#####################################################################
+    //#####################################################################
+    //#####################################################################
+    //#####################################################################
+
+
+    //#####################################################################
+
+
+    void UpdatePath(Grid& grid, Vector2i next_cell)
+    {
+        if (CanMovePath(grid, next_cell))
+        {
+            grid.path.push_back(next_cell);
+        }
+    }
+
+
+    bool CanMovePath(Grid& grid, Vector2i next_cell)
+    {
+        if (grid.path.empty())
+            return true;
+
+        Vector2i last = grid.path.back();
+
+        int dx = abs(next_cell.x - last.x);
+        int dy = abs(next_cell.y - last.y);
+        //printf("LAST X is %i -- Y is %i\n###", last.x, last.y);
+        //printf("NEXT X is %i -- Y is %i\n###\n\n", next_cell.x, next_cell.y);
+
+        // mouvement cardinal uniquement
+        if (dx + dy != 1)
+            return false;
+
+        // retour arrière
+        if (grid.path.size() > 1)
+        {
+            Vector2i prev = grid.path[grid.path.size() - 2];
+
+            if (next_cell == prev)
+            {
+                grid.path.pop_back();
+                return false;
+            }
+        }
+
+        // cellule déjà visitée
+        if (PathContains(grid.path, next_cell))
+            return false;
+
+        //printf("IN PATH FUNC ////////\n");
+        return true;
+    }
+
+
+
+    bool PathContains(const std::vector<Vector2i>& path, Vector2i cell)
+    {
+        for (const Vector2i& c : path)
+        {
+            if (c == cell)
+                return true;
+        }
+
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     void CheckWalls(World& world, int index, Grid& grid, Vector2i coords)
     {

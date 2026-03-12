@@ -34,15 +34,15 @@ namespace MovementSystem
         {
             MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[3]);
         }
-        if (IsKeyPressed(KEY_S))
+        else if (IsKeyPressed(KEY_S))
         {
             MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[2]);
         }
-        if (IsKeyPressed(KEY_D))
+        else if (IsKeyPressed(KEY_D))
         {
             MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[0]);
         }
-        if (IsKeyPressed(KEY_A))
+        else if (IsKeyPressed(KEY_A))
         {
             MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[1]);
         }
