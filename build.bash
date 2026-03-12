@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CXX=clang++
-CXXFLAGS="-std=c++17 -Wall -Wno-missing-field-initializers -O2"
+CXX=g++
+CXXFLAGS="-std=c++17 -Wall -Wno-missing-field-initializers -O2 -fsanitize=address"
 RAYLIB_PATH=$(brew --prefix raylib)
 
 $CXX $CXXFLAGS \
@@ -12,9 +12,9 @@ src/systems/GameplaySystem.cpp \
 src/systems/RenderSystem.cpp \
 src/systems/MovementSystem.cpp \
 src/systems/HoverSystem.cpp \
+src/systems/CursorSystem.cpp \
 src/world/world.cpp \
 src/levels/level.cpp \
-src/cursor/Cursor.cpp \
 src/spatial/Grid.cpp \
 src/assets/AssetManager.cpp \
 src/editor/Editor.cpp \

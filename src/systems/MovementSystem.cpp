@@ -1,7 +1,7 @@
 #include "MovementSystem.hpp"
 #include "world/world.hpp"
-#include "cursor/Cursor.hpp"
 #include "raylib.h"
+#include "modules/math/grid_math.hpp"
 
 namespace MovementSystem
 {
@@ -20,10 +20,6 @@ namespace MovementSystem
                 world.collider.bounds[i].x = world.transform.pos[i].x - world.transform.size[i].x/2; // On bouge le collider bounds ici. Bonne idee ??
                 world.collider.bounds[i].y = world.transform.pos[i].y - world.transform.size[i].y/2;
             }
-            else if (world.entity.type[i] == EntityType::ENTITY_CURSOR)
-            {
-                Update_Cursor(world, i);
-            }
 
         }
     }
@@ -31,30 +27,25 @@ namespace MovementSystem
 
 // Integration basique pour le moment
 
-    //void Update_Player(Vector2& pos, float dt){
     void Update_Player(World& w, int index, float dt){
-        float _step = 128;
+        Vector2i p_cell = w.transform.cell[index];
 
         if (IsKeyPressed(KEY_W))
         {
-            MovePlayer(w, index, {4, 4}, {0, 0});
+            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[3]);
         }
         if (IsKeyPressed(KEY_S))
         {
-            MovePlayer(w, index, {4, 4}, {1, 0});
+            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[2]);
         }
         if (IsKeyPressed(KEY_D))
         {
-            MovePlayer(w, index, {4, 4}, {2, 0});
+            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[0]);
         }
         if (IsKeyPressed(KEY_A))
         {
-            MovePlayer(w, index, {4, 4}, {3, 0});
+            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[1]);
         }
-        //if (IsKeyPressed(KEY_W)) pos.y -= _step;
-        //if (IsKeyPressed(KEY_S)) pos.y += _step;
-        //if (IsKeyPressed(KEY_A)) pos.x -= _step;
-        //if (IsKeyPressed(KEY_D)) pos.x += _step;
     }
 
     void MovePlayer(World& w, int player, Vector2i old_cell, Vector2i new_cell)
@@ -66,12 +57,10 @@ namespace MovementSystem
         if (to.is_wall) return;
 
         w.transform.pos[player] = to.center;
+        w.transform.cell[player] = new_cell;
         Grid_MoveEntity(player, from, to);
     }
 
-    void Update_Cursor(World& world, int index){
-        CursorManager::Update(world, index, world.loaded_levels[world.active_level].grid);
-    }
 
     void Grid_MoveEntity(int entity, Cell& from, Cell& to)
     {

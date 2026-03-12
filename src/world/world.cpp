@@ -1,9 +1,11 @@
 #include "world.hpp"
 #include "systems/SpawnSystem.hpp"
+#include "systems/CursorSystem.hpp"
 #include "systems/MovementSystem.hpp"
 #include "systems/CollisionSystem.hpp"
 #include "systems/GameplaySystem.hpp"
 #include "systems/HoverSystem.hpp"
+#include "modules/math/grid_math.hpp"
 #include "assert.h"
 
 
@@ -17,7 +19,7 @@ namespace WorldManager{
         world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
 
         CameraController::Init(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
-        CursorManager::Init(world, SpawnCursor(world, {0, 0}), {64, 64});
+        CursorSystem::Init(world);
         Init_Levels(world);
 
 // BORDEL POUR DEBUGGER UN INIT WORLD MAIS A REMPLACER PAR UN CHARGEMENT PROPRE DU FICHIER MONDE
@@ -36,12 +38,13 @@ namespace WorldManager{
             Grid& _grid = world.loaded_levels[i].grid;
             for (int c = 0; c < _grid.cells.size(); c++){
                 Cell& _cell = _grid.cells[c];
-                CellInsertEntity(_grid, SpawnFloorGrass(world, _cell.center), _cell.coords);
-                CellInsertEntity(_grid, SpawnCellConnector(world, _cell.center), _cell.coords);
+                
+                Cell_AddEntity(_cell, SpawnFloorGrass(world, _cell.center));
+                Cell_AddEntity(_cell, SpawnCellConnector(world, _cell.center));
             }
-            int _cell_start_index = GetCellFromCoords(_grid, 4, 4);
-            Cell& _cell_start = _grid.cells[_cell_start_index];
-            CellInsertEntity(_grid, SpawnPlayer(world, _cell_start.center, JobType::JOB_MAGE), _cell_start.coords);
+
+            Cell& _cell_start = Grid_GetCell(_grid, 4, 4);
+            Cell_AddEntity(_cell_start, SpawnPlayer(world, _cell_start.center, JobType::JOB_MAGE));
         }
     }
 
@@ -50,10 +53,11 @@ namespace WorldManager{
 // MAIN WORLD UPDATE ENTRY
 // #########################################################################
 
-    void Update_World(World& world, float dt)
+    void Update_World(World& world, CameraController::CameraController cam, float dt)
     {
         assert(World_FindCursor(world) >= 0 && "We need the cursor to exist as an entity");
         
+        CursorSystem::Update(world);
         MovementSystem::Update(world, dt);
         CollisionSystem::Update(world);
         HoverSystem::Update(world);
@@ -69,6 +73,8 @@ namespace WorldManager{
         {
             world.active_level = newLevel;
         }
+
+
     }
 
 

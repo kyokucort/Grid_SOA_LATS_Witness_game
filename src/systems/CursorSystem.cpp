@@ -1,40 +1,56 @@
-#include "Cursor.hpp"
-#include "core/config.hpp"
+#include "CursorSystem.hpp"
+#include "SpawnSystem.hpp"
 #include "world/world.hpp"
+#include "raylib.h"
 #include "raymath.h"
+#include "modules/math/grid_math.hpp"
 #include "assert.h"
 
-namespace CursorManager
+namespace CursorSystem
 {
-    
-    void Init(World& world, int index, Vector2 position)
+    void Init(World& world)
     {
+        int index = SpawnCursor(world, {0, 0});
         assert(world.cursor.has[index] == true && "The entity has no cursor component");
-        world.transform.pos[index] = position;
+        world.transform.pos[index] = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
         world.cursor.can_turn[index] = true;
         world.cursor.base_speed[index] = CELL_SIZE_WORLD;
         world.cursor.slide_speed[index] = CELL_SIZE_WORLD/2;
         world.cursor.is_free[index] = true;
+        SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+        DisableCursor();
+        HideCursor();
     }
 
 
-    void Update(World& world, int index, Grid& grid)
+    void Update(World& w)
     {
-        world.active_cell = GetActiveCellIndex(world.transform.pos[index], grid);
-        world.collider.bounds[index].x = world.transform.pos[index].x - world.transform.size[index].x/2; // On bouge le collider bounds ici. Bonne idee ? 
-        world.collider.bounds[index].y = world.transform.pos[index].y - world.transform.size[index].y/2;
+        int index = WorldManager::World_FindCursor(w);
+        Grid& grid = w.loaded_levels[w.active_level].grid;
+        Vector2 _old_pos = w.transform.pos[index];
+        Vector2& _pos = w.transform.pos[index];
+        w.collider.bounds[index].x = _pos.x - w.transform.size[index].x/2; // On bouge le collider bounds ici. Bonne idee ? 
+        w.collider.bounds[index].y = _pos.y - w.transform.size[index].y/2;
 
 
-        HandleClic(world, index, grid);
+        HandleClic(w, index, grid);
 
-        if (!world.cursor.is_free[index])
+        if (!w.cursor.is_free[index])
         {
-            HandleGridMovement(world, index, grid);
-            CheckNewCell(world.transform.pos[index], grid);
+            HandleGridMovement(w, index, grid);
+            CheckNewCell(w.cursor_cell, grid);
         }
         else
         {
-            world.transform.pos[index] = GetMousePosition();
+            //world.transform.pos[index] = GetMousePosition();
+            _pos += GetMouseDelta() * 2;
+        }
+
+        w.cursor_cell = WorldToCell(w.loaded_levels[w.active_level], _pos);
+        Vector2 _limit = {grid.position.x + (grid.width * CELL_SIZE_WORLD), grid.position.y + (grid.height * CELL_SIZE_WORLD)};
+        if (_pos.x < grid.position.x || _pos.x > _limit.x || _pos.y < grid.position.y || _pos.y > _limit.y)
+        {
+            //_pos = _old_pos;
         }
     }
 
@@ -45,18 +61,20 @@ namespace CursorManager
         {
             if (!w.cursor.is_free[index])
             {
-                EnableCursor();
-                HideCursor();
+                //EnableCursor();
+                //HideCursor();
                 w.cursor.is_free[index] = !w.cursor.is_free[index];
                 return;
             }
-
-            SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-            DisableCursor();
-            grid.path.clear();
-            Vector2 _cell = GetActiveCellCoords(w.transform.pos[index], grid);
-            grid.path.push_back(_cell);
-            w.cursor.is_free[index] = !w.cursor.is_free[index];
+/*
+            int p_index = WorldManager::World_FindPlayer(w);
+            if (w.hover.hovered[p_index])
+            {
+                grid.path.clear();
+                grid.path.push_back(w.cursor_cell);
+                w.cursor.is_free[index] = !w.cursor.is_free[index];
+            }
+            */
             ///////////////////////////////////////
             /// Ici grosse fonction a etablir (vider, le path, enlever les wall...). Enfin, noeud important en tout cas
         }
@@ -120,12 +138,12 @@ namespace CursorManager
 
         }
 
-        int _test_cell = GetActiveCellIndex(_pos, grid);
-        Vector2 _coords = grid.cells[_test_cell].coords;
-        if (_test_cell >= 0)
-        {
-            grid.cells[_test_cell].is_wall = true;
-        }
+        //int _test_cell = GetActiveCellIndex(_pos, grid);
+        Vector2i _coords = world.cursor_cell;
+        //if (_test_cell >= 0)
+        //{
+        //    grid.cells[_test_cell].is_wall = true;
+        //}
 
         CheckWalls(world, index, grid, _coords);
 
@@ -136,7 +154,7 @@ namespace CursorManager
 
     }
 
-    void CheckWalls(World& world, int index, Grid& grid, Vector2 coords)
+    void CheckWalls(World& world, int index, Grid& grid, Vector2i coords)
     {
         int _current_cell = GetCellFromCoords(grid, coords.x, coords.y);
         if (_current_cell < 0 ) return;
@@ -184,28 +202,12 @@ namespace CursorManager
     }
 
 
-    Vector2 GetActiveCellCoords(Vector2 position, Grid& grid)
-    {
-        for (int i = 0; i < grid.cells.size(); i++){
-            Vector2 _center = grid.cells[i].center;
-            Rectangle _rec = {_center.x - CELL_SIZE_WORLD/2, _center.y - CELL_SIZE_WORLD/2, CELL_SIZE_WORLD, CELL_SIZE_WORLD};
-            if (CheckCollisionPointRec(position, _rec))
-            {
-                return grid.cells[i].coords;
-            }
-        }
-        return {-1, -1};
-    }
-
-    void CheckNewCell(Vector2 position, Grid& grid)
+    void CheckNewCell(Vector2i cell, Grid& grid)
     {
         if (grid.path.size() <= 0) return;
-        Vector2 _cell = GetActiveCellCoords(position, grid);
-        //if (_cell.x == grid.path.back().x && _cell.y == grid.path.back().y) return;
-
-        if (grid.path.back() != _cell)
+        if (grid.path.back() != cell)
         {
-            grid.path.push_back(_cell);
+            grid.path.push_back(cell);
         }
     }
 

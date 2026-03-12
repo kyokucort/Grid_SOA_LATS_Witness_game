@@ -29,6 +29,9 @@ void BaseEntitySetup(World& w, int index)
 
     // Job
     w.job.has[index] = false;
+
+    // Hover
+    w.hover.has[index] = false;
 }
 
 void DestroyEntity(World& w, int e)
@@ -49,6 +52,7 @@ int SpawnPlayer(World& world, Vector2 pos, JobType job)
     world.transform.pos[e] = pos;
     world.transform.size[e] = {24, 24};
     world.transform.scale[e] = {4,4};
+    world.transform.cell[e] = {3, 3};
 
     //Collider
     world.collider.has[e] = true;
@@ -58,6 +62,9 @@ int SpawnPlayer(World& world, Vector2 pos, JobType job)
     // Job
     world.job.has[e] = true;
     world.job.type[e] = job;
+
+    // Hover
+    world.hover.has[e] = true;
 
     // Render
     world.render.layer[e] = 3;
@@ -138,6 +145,9 @@ int SpawnCellConnector(World& world, Vector2 pos){
     world.render.color[e] = WHITE;
     world.render.src[e] = {0, 0, 32, 32};
     world.render.texture[e] = TextureID::Cell_Connector;
+
+    // Hover
+    world.hover.has[e] = true;
 
     //Collider
     world.collider.has[e] = true;

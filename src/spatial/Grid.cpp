@@ -34,17 +34,6 @@ Cell& Grid_GetCell(Grid& grid, int x, int y)
 }
 
 
-void CellInsertEntity(Grid& grid, int entity, Vector2 coords)
-{
-    int _cell_id = GetCellFromCoords(grid, coords.x, coords.y);
-    assert(_cell_id >= 0 && "No cell on coords");
-    Cell& _cell = grid.cells[_cell_id];
-
-    _cell.entities[_cell.count] = entity;
-
-    _cell.count += 1;
-}
-
 void Cell_AddEntity(Cell& cell, int entity)
 {
     if (cell.count >= MAX_ENTITIES_PER_CELL) return;

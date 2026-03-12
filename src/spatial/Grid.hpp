@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "core/config.hpp"
 #include <vector>
+#include "modules/math/vector2i.hpp"
 
 
 struct Cell
@@ -22,7 +23,7 @@ struct Grid
     Vector2 position;
 
     std::vector<Cell> cells;
-    std::vector<Vector2> path;
+    std::vector<Vector2i> path;
 };
 
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position);

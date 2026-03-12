@@ -84,7 +84,7 @@ void Init()
 
 void Update()
 {
-    WorldManager::Update_World(world, GetFrameTime());
+    WorldManager::Update_World(world, camera_control, GetFrameTime());
     CameraController::Update(camera_control);
     CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
     Editor_Update(world, editor, camera_control);
@@ -121,6 +121,9 @@ void Draw()
 
         Editor_Draw_UI(world, editor, camera_control);
         DrawFPS(SCREEN_WIDTH - 30, SCREEN_HEIGHT - 30);
+        DrawText(TextFormat("%i - %i", world.cursor_cell.x, world.cursor_cell.y), 20, 700, 12, BLACK);
+        DrawText(TextFormat("%.0f - %.0f", world.mouse_world.x, world.mouse_world.y), 20, 720, 12, BLACK);
+        DrawText(TextFormat("%.0f - %.0f", world.transform.pos[WorldManager::World_FindCursor(world)].x, world.transform.pos[WorldManager::World_FindCursor(world)].y), 20, 750, 12, BLACK);
 
     EndDrawing();
 }

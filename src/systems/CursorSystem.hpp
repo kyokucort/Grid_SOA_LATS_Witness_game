@@ -17,17 +17,17 @@ struct Cursor {
 };
 
 
-namespace CursorManager
+namespace CursorSystem
 {
-    void Init(World& world, int index, Vector2 position);
-    void Update(World& world, int index, Grid& grid);
+    void Init(World& world);
+    void Update(World& w);
     void HandleClic(World& w, int index, Grid& grid);
     void HandleGridMovement(World& world, int index, Grid& grid);
     float GetCloserCellDistance(Vector2 position, Grid& grid);
     Vector2 GetMovementOnGrid();
     Vector2 GetCloserCell(Vector2 position, Grid& grid);
-    void CheckNewCell(Vector2 position, Grid& grid);
+    void CheckNewCell(Vector2i cell, Grid& grid);
     Vector2 GetActiveCellCoords(Vector2 position, Grid& grid);
     int GetActiveCellIndex(Vector2 position, Grid& grid);
-    void CheckWalls(World& world, int index, Grid& grid, Vector2 coords);
+    void CheckWalls(World& world, int index, Grid& grid, Vector2i coords);
 }
