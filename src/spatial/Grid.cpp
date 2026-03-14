@@ -67,3 +67,4 @@ int GetCellFromCoords(Grid& grid, int x, int y)
     }
     return -1;
 }
+

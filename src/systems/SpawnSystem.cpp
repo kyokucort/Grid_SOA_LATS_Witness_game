@@ -33,6 +33,9 @@ void BaseEntitySetup(World& w, int index)
 
     // Hover
     w.hover.has[index] = false;
+
+    // Path
+    w.path.has[index] = false;
 }
 
 void DestroyEntity(World& w, int e)
@@ -70,7 +73,9 @@ int SpawnPlayer(World& world, Vector2i coords, JobType job)
 
     // Hover
     world.hover.has[e] = true;
-    //
+
+    // Path
+    world.path.has[e] = true;
 
     // Render
     world.render.layer[e] = 3;
@@ -87,6 +92,86 @@ TextureID GetTextureFromJob(JobType job){
     }
     return TextureID::NoTexture;
 }
+
+int SpawnKey(World& w, Vector2i coords)
+{
+    int e = CreateEntity(w);
+    if (e == -1) return -1;
+
+    Grid _grid = w.loaded_levels[w.active_level].grid;
+    Vector2 _pos = CellCenter(coords, _grid.position, CELL_SIZE_WORLD);
+    
+
+    // Type
+    w.entity.type[e] = EntityType::ENTITY_KEY;
+
+    // Transform
+    w.transform.pos[e] = _pos;
+    w.transform.size[e] = {32, 32};
+    w.transform.scale[e] = {2,2};
+    w.transform.cell[e] = coords;
+
+    //Collider
+    w.collider.has[e] = true;
+    w.collider.bounds[e] = {_pos.x - w.transform.size[e].x/2, _pos.y - w.transform.size[e].y/2, 32, 32};
+    w.collider.is_under_cursor[e] = false;
+
+    // Hover
+    w.hover.has[e] = true;
+
+    // Path
+    w.path.has[e] = true;
+
+    // Render
+    w.render.layer[e] = 3;
+    w.render.color[e] = WHITE;
+    w.render.src[e] = {0, 0, 32, 32};
+    w.render.texture[e] = TextureID::Key;
+
+    return e;
+}
+
+int SpawnDoor(World& w, Vector2i coords)
+{
+    int e = CreateEntity(w);
+    if (e == -1) return -1;
+
+    Grid _grid = w.loaded_levels[w.active_level].grid;
+    Vector2 _pos = CellCenter(coords, _grid.position, CELL_SIZE_WORLD);
+    
+
+    // Type
+    w.entity.type[e] = EntityType::ENTITY_DOOR;
+
+    // Transform
+    w.transform.pos[e] = _pos;
+    w.transform.size[e] = {32, 32};
+    w.transform.scale[e] = {4,4};
+    w.transform.cell[e] = coords;
+
+    //Collider
+    w.collider.has[e] = true;
+    w.collider.bounds[e] = {_pos.x - w.transform.size[e].x/2, _pos.y - w.transform.size[e].y/2, 32, 32};
+    w.collider.is_under_cursor[e] = false;
+
+    // Hover
+    w.hover.has[e] = true;
+
+    // Path
+    w.path.has[e] = true;
+
+    // Render
+    w.render.layer[e] = 3;
+    w.render.color[e] = WHITE;
+    w.render.src[e] = {0, 0, 32, 32};
+    w.render.texture[e] = TextureID::Door;
+
+    return e;
+}
+
+
+
+
 
 int SpawnWall(World& world, Vector2 pos){
     int e = CreateEntity(world);

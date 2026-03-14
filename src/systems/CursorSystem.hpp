@@ -12,11 +12,12 @@ namespace CursorSystem
     void Init(World& world);
     void Update(World& w);
     void HandleClic(World& w, int index, Grid& grid);
+    int HasInteractible(World& w, Vector2i target_cell);
     void HandleGridMovement(World& world, int index, Grid& grid);
     float GetCloserCellDistance(Vector2 position, Grid& grid);
     Vector2 GetMovementOnGrid();
     Vector2 GetCloserCell(Vector2 position, Grid& grid);
-    void CheckNewCell(Vector2i cell, Grid& grid);
+    void CheckNewCell(std::vector<Vector2i>& path, Vector2i cell);
     Vector2 GetActiveCellCoords(Vector2 position, Grid& grid);
     int GetActiveCellIndex(Vector2 position, Grid& grid);
     void CheckWalls(World& world, int index, Grid& grid, Vector2i coords);
@@ -26,7 +27,8 @@ namespace CursorSystem
     void UpdateCursorPhysics(World& w, int index, Vector2 mouse_delta, float dt);
     void OnCursorEnterCell(World& w, int index, Vector2i new_cell);
     bool IsNearCellCenter(World& w, int index);
-    void UpdatePath(Grid& grid, Vector2i next_cell);
-    bool CanMovePath(Grid& grid, Vector2i next_cell);
+    void UpdatePath(std::vector<Vector2i>& path, Vector2i next_cell);
+    bool CanMovePath(std::vector<Vector2i>& path, Vector2i next_cell);
     bool PathContains(const std::vector<Vector2i>& path, Vector2i cell);
+    void CheckDoor(World& w, std::vector<Vector2i>& path);
 }

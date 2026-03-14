@@ -8,6 +8,7 @@
 #include "pools/CursorPool.hpp"
 #include "pools/HoverPool.hpp"
 #include "pools/JobPool.hpp"
+#include "pools/PathPool.hpp"
 #include "levels/level.hpp"
 #include "spatial/Grid.hpp"
 #include "camera/CameraController.hpp"
@@ -25,6 +26,7 @@ struct World
     std::vector<Level> loaded_levels;
     int active_level;
     Vector2i cursor_cell;
+    int active_interactible;
     Vector2 mouse_world;
     EntityPool entity;
     TransformPool transform;
@@ -35,6 +37,7 @@ struct World
     JobPool job;
     CursorPool cursor;
     HoverPool hover;
+    PathPool path;
 };
 
 namespace WorldManager

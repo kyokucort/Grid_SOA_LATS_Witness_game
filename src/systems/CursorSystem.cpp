@@ -58,14 +58,17 @@ namespace CursorSystem
             Vector2i new_cell = WorldToCell(level, w.cursor.pos[index]);
             if (new_cell != w.cursor_cell)
             {
+                //int p_index = WorldManager::World_FindPlayer(w);
+                int p_index = w.active_interactible;
                 OnCursorEnterCell(w, index, w.cursor_cell);
                 Vector2i _coords = w.cursor_cell;
-                if (grid.path.empty())
+
+                if (w.path.path[p_index].points.empty())
                 {
-                    grid.path.push_back(w.cursor_cell);
+                    w.path.path[p_index].points.push_back(w.cursor_cell);
                     return;
                 }
-                UpdatePath(grid, w.cursor_cell);
+                UpdatePath(w.path.path[p_index].points, w.cursor_cell);
             }
 
             if (IsNearCellCenter(w, index))
@@ -88,24 +91,86 @@ namespace CursorSystem
     {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            int p_index = WorldManager::World_FindPlayer(w);
-
             if (!w.cursor.is_free[index])
             {
-                w.cursor.is_free[index] = !w.cursor.is_free[index];
+                int _current = HasInteractible(w, w.cursor_cell);
+                if (_current < 0)
+                {
+                    w.path.path[w.active_interactible].points.clear();
+                    w.active_interactible = -1;
+                    //w.cursor.is_free[index] = !w.cursor.is_free[index];
+                    w.cursor.is_free[index] = true;
+                    printf("ON NOTIONG #########################\n");
+                    return;
+                }
+                printf("Current ### %i\n", _current);
+                printf("Active ### %i\n", w.active_interactible);
+                CheckDoor(w, w.path.path[w.active_interactible].points);
+                w.cursor.is_free[index] = true;
                 return;
             }
+            w.active_interactible = HasInteractible(w, w.cursor_cell);
+            if (w.active_interactible < 0) return;
 
-            if (w.hover.hovered[p_index])
-            {
-                grid.path.clear();
-                grid.path.push_back(w.cursor_cell);
-                w.cursor.is_free[index] = !w.cursor.is_free[index];
-            }
-            ///////////////////////////////////////
-            /// Ici grosse fonction a etablir (vider, le path, enlever les wall...). Enfin, noeud important en tout cas
+            w.path.path[w.active_interactible].points.clear();
+            w.path.path[w.active_interactible].points.push_back(w.cursor_cell);
+            //w.cursor.is_free[index] = !w.cursor.is_free[index];
+            w.cursor.is_free[index] = false;
         }
 
+    }
+
+
+    void CheckDoor(World& w, std::vector<Vector2i>& path)
+    {
+
+        if (path.size() < 1) return;
+
+        printf("Path size is === %lu\n", path.size());
+        Grid& grid = w.loaded_levels[w.active_level].grid; 
+        int start = GetCellFromCoords(grid, path[0].x, path[0].y);
+        int end = GetCellFromCoords(grid, path.back().x, path.back().y);
+
+        if (start < 0 || end < 0) return;
+        printf("NO CELLL \n\n");
+
+        int in = HasInteractible(w, path.front());
+        int out = HasInteractible(w, path.back());
+        printf("In is === %i, %i\n", path.front().x, path.front().y);
+        printf("Out is === %i\n", out);
+        
+        if (in < 0 || out < 0) return;
+
+        printf("NO ENTITY \n\n");
+        printf("In type is === %i\n", w.entity.type[in]);
+        printf("Out type is === %i\n", w.entity.type[out]);
+
+        if (w.entity.type[in] == EntityType::ENTITY_KEY && w.entity.type[out] == EntityType::ENTITY_DOOR)
+        {
+
+            printf("ON DOOR \n\n");
+            w.entity.alive[in] = false;
+            Cell_RemoveEntity(grid.cells[start], in);
+            w.entity.alive[out] = false;
+            Cell_RemoveEntity(grid.cells[end], out);
+        }
+    }
+
+
+    int HasInteractible(World& w, Vector2i target_cell)
+    {
+        Grid& _grid = w.loaded_levels[w.active_level].grid; 
+        int _cell = GetCellFromCoords(_grid, target_cell.x, target_cell.y);
+        for (int c = 0; c < _grid.cells[_cell].count; c++)
+        {
+            int e = _grid.cells[_cell].entities[c];
+            if (!w.path.has[e]) continue;
+            //if (w.hover.hovered[e])
+            //{
+                return e;
+            //}
+        }
+        return -1;
     }
 
 
@@ -149,17 +214,19 @@ namespace CursorSystem
 
     void OnCursorEnterCell(World& w, int index, Vector2i new_cell)
     {
+        //int p_index = WorldManager::World_FindPlayer(w);
+        int p_index = w.active_interactible;
         Grid& grid = w.loaded_levels[w.active_level].grid;
 
         if (!IsCellInside(new_cell, grid.width, grid.height))
             return;
 
-        if (!CanMovePath(grid, new_cell))
+        if (!CanMovePath(w.path.path[p_index].points, new_cell))
             return;
 
         w.cursor.cell[index] = new_cell;
 
-        grid.path.push_back(new_cell);
+        w.path.path[p_index].points.push_back(new_cell);
         w.cursor.axis[index] = CursorAxis::AXIS_NONE;
     }
 
@@ -189,21 +256,22 @@ namespace CursorSystem
     //#####################################################################
 
 
-    void UpdatePath(Grid& grid, Vector2i next_cell)
+    void UpdatePath(std::vector<Vector2i>& path, Vector2i next_cell)
     {
-        if (CanMovePath(grid, next_cell))
+        if (CanMovePath(path, next_cell))
         {
-            grid.path.push_back(next_cell);
+            path.push_back(next_cell);
         }
     }
 
 
-    bool CanMovePath(Grid& grid, Vector2i next_cell)
+    //bool CanMovePath(Grid& grid, Vector2i next_cell)
+    bool CanMovePath(std::vector<Vector2i>& path, Vector2i next_cell)
     {
-        if (grid.path.empty())
+        if (path.empty())
             return true;
 
-        Vector2i last = grid.path.back();
+        Vector2i last = path.back();
 
         int dx = abs(next_cell.x - last.x);
         int dy = abs(next_cell.y - last.y);
@@ -215,19 +283,19 @@ namespace CursorSystem
             return false;
 
         // retour arrière
-        if (grid.path.size() > 1)
+        if (path.size() > 1)
         {
-            Vector2i prev = grid.path[grid.path.size() - 2];
+            Vector2i prev = path[path.size() - 2];
 
             if (next_cell == prev)
             {
-                grid.path.pop_back();
+                path.pop_back();
                 return false;
             }
         }
 
         // cellule déjà visitée
-        if (PathContains(grid.path, next_cell))
+        if (PathContains(path, next_cell))
             return false;
 
         //printf("IN PATH FUNC ////////\n");
@@ -308,12 +376,12 @@ namespace CursorSystem
     }
 
 
-    void CheckNewCell(Vector2i cell, Grid& grid)
+    void CheckNewCell(std::vector<Vector2i>& path, Vector2i cell)
     {
-        if (grid.path.size() <= 0) return;
-        if (grid.path.back() != cell)
+        if (path.size() <= 0) return;
+        if (path.back() != cell)
         {
-            grid.path.push_back(cell);
+            path.push_back(cell);
         }
     }
 

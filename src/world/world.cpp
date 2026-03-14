@@ -15,6 +15,7 @@ namespace WorldManager{
     {
         world.entity.count = 0;
         world.active_level = 0;
+        world.active_interactible = -1;
         world.loaded_levels.push_back(SpawnLevel({0, 0}, 14, 8));
         world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
 
@@ -47,6 +48,14 @@ namespace WorldManager{
         Grid& _grid = world.loaded_levels[world.active_level].grid;
         Cell& _cell_start = Grid_GetCell(_grid, 2, 6);
         Cell_AddEntity(_cell_start, SpawnPlayer(world, {2, 6}, JobType::JOB_MAGE));
+        Cell& _key_start = Grid_GetCell(_grid, 10, 6);
+        Cell_AddEntity(_key_start, SpawnKey(world, {10, 6}));
+        Cell& _key_start2 = Grid_GetCell(_grid, 8, 6);
+        Cell_AddEntity(_key_start2, SpawnKey(world, {8, 6}));
+        Cell& _key_start3 = Grid_GetCell(_grid, 7, 3);
+        Cell_AddEntity(_key_start3, SpawnKey(world, {7, 3}));
+        Cell& _door = Grid_GetCell(_grid, 12, 2);
+        Cell_AddEntity(_door, SpawnDoor(world, {12, 2}));
     }
 
 

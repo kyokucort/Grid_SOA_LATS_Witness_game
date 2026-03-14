@@ -24,4 +24,5 @@ namespace RenderSystem
     void DrawWorld(World& world, AssetManager& assets);
     void DrawLevel(World& world, int index);
     DrawCmd GetDrawCmd(World& world, int index, AssetManager assets);
+    void DrawPath(World& w);
 }

@@ -7,6 +7,8 @@ enum class TextureID : uint16_t
     Cursor_Base,
     Cell_Connector,
     Floor_Grass,
+    Key,
+    Door,
     Wall,
     Enemy,
     Tileset,

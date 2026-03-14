@@ -30,16 +30,15 @@ namespace RenderSystem
 
             cmd.dst = _dest;
             cmd.color = world.render.color[i];
-            if (world.hover.hovered[i])
+            if (world.hover.hovered[i] && world.path.has[i])
             {
-                if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
-                {
-                    cmd.color = BLUE;
-                }
+                cmd.color = BLUE;
+                /*
                 if (world.entity.type[i] == EntityType::ENTITY_CELL_CONNECTOR)
                 {
                     cmd.color = BLUE;
                 }
+                */
 
             }
 
@@ -74,6 +73,7 @@ namespace RenderSystem
             if (!world.entity.alive[i]) continue;
             DrawRectangleLinesEx(world.collider.bounds[i], 2.0f, PINK);
         }
+        DrawPath(world);
         
     }
 
@@ -98,19 +98,6 @@ namespace RenderSystem
             //DrawText(TextFormat("WALL = %i", _grid.cells[i].is_wall), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 24, 12, WHITE);
         }
 
-        if (_grid.path.size() > 1){
-            for (int i = 0; i < _grid.path.size() - 1; i++)
-            {
-                Vector2 a;
-                Vector2 b;
-                a.x = _grid.position.x + (_grid.path[i].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
-                a.y = _grid.position.y + (_grid.path[i].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
-                b.x = _grid.position.x + (_grid.path[i+1].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
-                b.y = _grid.position.y + (_grid.path[i+1].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
-
-                DrawLineEx(a, b, 16, Fade(RAYWHITE, 0.8f));
-            }
-        }
 
         //DrawText(TextFormat("Level : %i", index), _grid.position.x, _grid.position.y, 32, RED);
         //DrawText(TextFormat("Collisions : %i", world.collision_events.size()), _grid.position.x, _grid.position.y + 128, 32, WHITE);
@@ -127,6 +114,35 @@ namespace RenderSystem
     void DrawWorld(World& world, AssetManager& assets)
     {
         DrawPool(world, assets);
+    }
+    
+    void DrawPath(World& w)
+    {
+        Grid _grid = w.loaded_levels[w.active_level].grid;
+
+        for (int i=0 ; i < MAX_ENTITIES; i++)
+        {
+            if (!w.entity.alive[i]) continue;
+            if (!w.path.has[i]) continue;
+
+            std::vector<Vector2i>& _path = w.path.path[i].points;
+
+            if (_path.size() < 2) continue;
+
+            for (int p=0; p < _path.size() - 1; p++)
+            {
+                Vector2 a;
+                Vector2 b;
+                a.x = _grid.position.x + (_path[p].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+                a.y = _grid.position.y + (_path[p].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+                b.x = _grid.position.x + (_path[p+1].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+                b.y = _grid.position.y + (_path[p+1].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+
+                DrawLineEx(a, b, 16, Fade(BLUE, 0.8f));
+            }
+        }
+
+
     }
 
 }
