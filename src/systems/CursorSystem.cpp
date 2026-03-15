@@ -1,4 +1,5 @@
 #include "CursorSystem.hpp"
+#include "PathSignalSystem.hpp"
 #include "SpawnSystem.hpp"
 #include "world/world.hpp"
 #include "raylib.h"
@@ -100,12 +101,10 @@ namespace CursorSystem
                     w.active_interactible = -1;
                     //w.cursor.is_free[index] = !w.cursor.is_free[index];
                     w.cursor.is_free[index] = true;
-                    printf("ON NOTIONG #########################\n");
                     return;
                 }
-                printf("Current ### %i\n", _current);
-                printf("Active ### %i\n", w.active_interactible);
-                CheckDoor(w, w.path.path[w.active_interactible].points);
+                //CheckDoor(w, w.path.path[w.active_interactible].points);
+                w.state = PathSignalSystem::ComputePathSignal(w, w.path.path[w.active_interactible].points);
                 w.cursor.is_free[index] = true;
                 return;
             }
@@ -114,11 +113,11 @@ namespace CursorSystem
 
             w.path.path[w.active_interactible].points.clear();
             w.path.path[w.active_interactible].points.push_back(w.cursor_cell);
-            //w.cursor.is_free[index] = !w.cursor.is_free[index];
             w.cursor.is_free[index] = false;
         }
 
     }
+
 
 
     void CheckDoor(World& w, std::vector<Vector2i>& path)

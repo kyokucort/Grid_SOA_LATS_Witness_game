@@ -102,6 +102,7 @@ namespace RenderSystem
         //DrawText(TextFormat("Level : %i", index), _grid.position.x, _grid.position.y, 32, RED);
         //DrawText(TextFormat("Collisions : %i", world.collision_events.size()), _grid.position.x, _grid.position.y + 128, 32, WHITE);
         DrawText(TextFormat("PATH SIZE : %i", _grid.path.size()), _grid.position.x, _grid.position.y + 128, 32, WHITE);
+        DrawText(TextFormat("STATE : %i", world.state), _grid.position.x, _grid.position.y + 170, 32, WHITE);
         Rectangle _border = {_grid.position.x, _grid.position.y, _grid.width * _grid.cell_size, _grid.height * _grid.cell_size};
         DrawRectangleLinesEx(_border, 4.0f, GRAY);
         if (_grid.path.size() > 0){

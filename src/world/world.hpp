@@ -9,6 +9,9 @@
 #include "pools/HoverPool.hpp"
 #include "pools/JobPool.hpp"
 #include "pools/PathPool.hpp"
+#include "pools/SignalPool.hpp"
+#include "pools/ModifierPool.hpp"
+#include "pools/LogicPool.hpp"
 #include "levels/level.hpp"
 #include "spatial/Grid.hpp"
 #include "camera/CameraController.hpp"
@@ -38,6 +41,11 @@ struct World
     CursorPool cursor;
     HoverPool hover;
     PathPool path;
+
+    SignalPool signal;
+    ModifierPool modifier;
+    LogicPool logic;
+    uint32_t state;
 };
 
 namespace WorldManager

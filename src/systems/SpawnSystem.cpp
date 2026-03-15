@@ -77,6 +77,14 @@ int SpawnPlayer(World& world, Vector2i coords, JobType job)
     // Path
     world.path.has[e] = true;
 
+    // Signal
+    world.signal.has[e] = true;
+    world.signal.data[e].signal = Signal::SIGNAL_BLUE;
+
+    // Modifier
+    world.modifier.has[e] = true;
+    world.modifier.data[e].add = Signal::SIGNAL_BLUE;
+
     // Render
     world.render.layer[e] = 3;
     world.render.color[e] = WHITE;
@@ -122,6 +130,10 @@ int SpawnKey(World& w, Vector2i coords)
     // Path
     w.path.has[e] = true;
 
+    // Signal
+    w.signal.has[e] = true;
+    w.signal.data[e].signal = Signal::SIGNAL_KEY;
+
     // Render
     w.render.layer[e] = 3;
     w.render.color[e] = WHITE;
@@ -159,6 +171,11 @@ int SpawnDoor(World& w, Vector2i coords)
 
     // Path
     w.path.has[e] = true;
+
+    // Logic
+    w.logic.has[e] = true;
+    w.logic.rule[e].require = Signal::SIGNAL_KEY | Signal::SIGNAL_BLUE;
+    w.logic.rule[e].forbid = 0;
 
     // Render
     w.render.layer[e] = 3;

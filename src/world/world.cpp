@@ -5,6 +5,7 @@
 #include "systems/CollisionSystem.hpp"
 #include "systems/GameplaySystem.hpp"
 #include "systems/HoverSystem.hpp"
+#include "systems/LogicSystem.hpp"
 #include "modules/math/grid_math.hpp"
 #include "assert.h"
 
@@ -72,6 +73,7 @@ namespace WorldManager{
         CollisionSystem::Update(world);
         HoverSystem::Update(world);
         GameplaySystem::Update(world);
+        LogicSystem::LogicSystem(world, world.state);
 
 
         // On check si le player a change de level (trouver une autre place. Collision ? Gameplay ? Level?)

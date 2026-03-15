@@ -13,6 +13,8 @@ src/systems/RenderSystem.cpp \
 src/systems/MovementSystem.cpp \
 src/systems/HoverSystem.cpp \
 src/systems/CursorSystem.cpp \
+src/systems/PathSignalSystem.cpp \
+src/systems/LogicSystem.cpp \
 src/world/world.cpp \
 src/levels/level.cpp \
 src/spatial/Grid.cpp \
