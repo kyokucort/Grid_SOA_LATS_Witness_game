@@ -6,6 +6,7 @@
 
 struct Level
 {
+    Rectangle area;
     Vector2 position;
     Vector2 center;
     Grid grid;

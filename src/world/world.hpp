@@ -26,6 +26,8 @@ struct CollisionEvent
 
 struct World
 {
+    Grid global_grid;
+    std::vector<Level> levels;
     std::vector<Level> loaded_levels;
     int active_level;
     Vector2i cursor_cell;

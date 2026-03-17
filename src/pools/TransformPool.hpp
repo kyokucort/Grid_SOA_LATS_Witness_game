@@ -10,4 +10,6 @@ struct TransformPool
     Vector2 size[MAX_ENTITIES];
     Vector2 scale[MAX_ENTITIES];
     Vector2i cell[MAX_ENTITIES];
+    Vector2i world_cell[MAX_ENTITIES];
+    Vector2i level_cell[MAX_ENTITIES];
 };

@@ -1,4 +1,5 @@
 #include "RenderSystem.hpp"
+#include "modules/math/grid_math.hpp"
 
 
 namespace RenderSystem
@@ -65,7 +66,8 @@ namespace RenderSystem
 
         for (int i=0 ; i < world.loaded_levels.size(); i++)
         {
-            DrawLevel(world, i);
+            //DrawLevel(world, i);
+            DrawGrid(world);
         }
 
         for (int i=0 ; i < MAX_ENTITIES; i++)
@@ -77,7 +79,26 @@ namespace RenderSystem
         
     }
 
+    void DrawGrid(World& w)
+    {
+        Grid _grid = w.global_grid;
+        for (int _x=0; _x < _grid.width; _x++){
+            for (int _y=0; _y < _grid.height; _y++){
+                    Vector2 _draw_pos = {_grid.position.x + (_x * _grid.cell_size), _grid.position.y + (_y * _grid.cell_size)};
+                    Rectangle _rec = {_draw_pos.x, _draw_pos.y, _grid.cell_size, _grid.cell_size};
+                    DrawRectangleLinesEx(_rec, 2.0f, GRAY);
+            }
+        }
+        for (int i = 0; i < _grid.cells.size(); i++)
+        {
+            Vector2i _coords = CellCoords(i, _grid.width);
+            Vector2 _center =  CellCenter(_coords, _grid.position, _grid.cell_size);
 
+            DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _center.x - 48, _center.y - 36, 12, WHITE);
+            DrawText(TextFormat("%i - %i", _coords.x, _coords.y), _center.x - 48, _center.y - 48, 12, WHITE);
+        }
+
+    }
 
     void DrawLevel(World& world, int index)
     {

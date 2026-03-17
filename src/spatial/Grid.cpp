@@ -1,6 +1,39 @@
 #include "Grid.hpp"
 #include "assert.h"
 
+void Init_WorldGrid(Grid& grid, int width, int height, float cell_size, Vector2 origin)
+{
+    grid.width = width;
+    grid.height = height;
+    grid.cell_size = cell_size;
+    grid.position = origin;
+
+    grid.cells.resize(width * height);
+
+    for (Cell& c : grid.cells)
+    {
+        c.count = 0;
+        c.is_wall = false;
+    }
+}
+
+void Init_WorldCells(Grid& grid)
+{
+    grid.cells.resize(grid.width * grid.height);
+
+    for (int y = 0; y < grid.height; y++)
+    {
+        for (int x = 0; x < grid.width; x++)
+        {
+            int i = y * grid.width + x;
+
+            Cell& cell = grid.cells[i];
+
+            cell.count = 0;
+            cell.is_wall = false;
+        }
+    }
+}
 
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position)
 {

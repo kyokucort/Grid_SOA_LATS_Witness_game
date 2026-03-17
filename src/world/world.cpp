@@ -24,6 +24,8 @@ namespace WorldManager{
         CursorSystem::Init(world);
         Init_Levels(world);
 
+        Init_WorldGrid(world.global_grid, 5, 5, 128, {0, 0});
+
 // BORDEL POUR DEBUGGER UN INIT WORLD MAIS A REMPLACER PAR UN CHARGEMENT PROPRE DU FICHIER MONDE
 
         SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);

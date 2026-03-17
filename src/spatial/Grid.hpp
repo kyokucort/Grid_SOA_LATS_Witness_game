@@ -33,3 +33,7 @@ void CellInsertEntity(Grid& grid, int entity, Vector2 coords);
 void Cell_AddEntity(Cell& cell, int entity);
 void Cell_RemoveEntity(Cell& cell, int entity);
 int GetCellFromCoords(Grid& grid, int x, int y);
+
+
+void Init_WorldCells(Grid& grid);
+void Init_WorldGrid(Grid& grid, int width, int height, float cell_size, Vector2 origin);
