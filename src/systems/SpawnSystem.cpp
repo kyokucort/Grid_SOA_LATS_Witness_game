@@ -1,6 +1,147 @@
 #include "SpawnSystem.hpp"
+#include "world/world.hpp"
 #include "assets/TextureID.hpp"
 #include "modules/math/grid_math.hpp"
+#include "spatial/Grid.hpp"
+
+std::array<ArchetypeBuilder, ARCH_COUNT>& GetBuilders()
+{
+    static std::array<ArchetypeBuilder, ARCH_COUNT> builders;
+    return builders;
+}
+
+
+void InitSpawnSystem()
+{
+    GetBuilders()[ARCH_PLAYER] = BuildPlayer;
+    GetBuilders()[ARCH_CURSOR] = BuildCursor;
+    GetBuilders()[ARCH_KEY] = BuildKey;
+}
+
+int CreateFromArchetype(World& w, Archetype type, Vector2i cell)
+{
+    int e = CreateEntity(w);
+    if (e == -1) return -1;
+
+    w.entity.alive[e] = true;
+    BaseEntitySetup(w, e);
+    GetBuilders()[type](w, e, cell);
+
+    GridInsert(w.global_grid, e, cell);
+
+    return e;
+}
+
+void BuildPlayer(World& w, int e, Vector2i cell)
+{
+    Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
+
+    AddEntity(w, e, EntityType::ENTITY_PLAYER);
+    AddTransform(w, e, pos, {24, 24}, {4, 4}, cell);
+    AddCollider(w, e, pos, {32, 32});
+    //AddCollider(w, e);
+    //AddJob(w, e, JOB_MAGE);
+    //AddHover(w, e);
+    //AddPath(w, e);
+
+    //AddSignal(w, e, SIGNAL_BLUE);
+    //AddModifier(w, e, SIGNAL_BLUE);
+
+    AddRender(w, e, TextureID::Mage, {0, 0, 24, 24});
+}
+
+void BuildCursor(World& w, int e, Vector2i cell)
+{
+    Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
+
+    AddEntity(w, e, EntityType::ENTITY_CURSOR);
+    AddTransform(w, e, pos, {64, 64}, {1, 1}, cell);
+    AddRender(w, e, TextureID::Cursor_Base, {0, 0, 64, 64});
+    AddCursor(w, e);
+    //AddCollider(w, e);
+    //AddJob(w, e, JOB_MAGE);
+    //AddHover(w, e);
+
+    //AddSignal(w, e, SIGNAL_BLUE);
+    //AddModifier(w, e, SIGNAL_BLUE);
+
+}
+
+void BuildKey(World& w, int e, Vector2i cell)
+{
+    Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
+
+    AddEntity(w, e, EntityType::ENTITY_KEY);
+    AddTransform(w, e, pos, {32, 32}, {2, 2}, cell);
+    AddRender(w, e, TextureID::Key, {0, 0, 32, 32});
+    AddPath(w, e);
+    AddHover(w, e);
+    AddSignal(w, e, SIGNAL_BLUE);
+    //AddCollider(w, e);
+    //AddJob(w, e, JOB_MAGE);
+    //AddPath(w, e);
+
+    //AddModifier(w, e, SIGNAL_BLUE);
+
+}
+
+void AddEntity(World& w, int e, EntityType type)
+{
+    w.entity.type[e] = type;
+}
+
+void AddTransform(World& w, int e, Vector2 pos, Vector2 size, Vector2 scale, Vector2i cell)
+{
+    w.transform.pos[e] = pos;
+    w.transform.size[e] = size;
+    w.transform.scale[e] = scale;
+    w.transform.cell[e] = cell;
+}
+
+void AddCollider(World& w, int e, Vector2 pos, Vector2 size)
+{
+    w.collider.has[e] = true;
+    w.collider.bounds[e] = {pos.x - size.x/2, pos.y - size.y/2, size.x, size.y};
+    w.collider.is_under_cursor[e] = false;
+
+}
+
+void AddRender(World& w, int e, TextureID id_texture, Rectangle src)
+{
+    w.render.texture[e] = id_texture;
+    w.render.src[e] = src;
+    w.render.layer[e] = 3;
+    w.render.color[e] = WHITE;
+}
+
+void AddPath(World& w, int e)
+{
+    w.path.has[e] = true;
+}
+
+void AddCursor(World& w, int e)
+{
+    w.cursor.has[e] = true;
+}
+
+void AddHover(World& w, int e)
+{
+    w.hover.has[e] = true;
+}
+
+void AddSignal(World& w, int e, Signal signal)
+{
+    w.signal.has[e] = true;
+    w.signal.data[e].signal = signal;
+}
+
+//######################################
+//######################################
+//######################################
+//######################################
+//######################################
+//######################################
+//######################################
 
 int CreateEntity(World& w)
 {
@@ -44,104 +185,6 @@ void DestroyEntity(World& w, int e)
 }
 
 
-int SpawnPlayer(World& world, Vector2i coords, JobType job)
-{
-    int e = CreateEntity(world);
-    if (e == -1) return -1;
-
-    Grid _grid = world.loaded_levels[world.active_level].grid;
-    Vector2 _pos = CellCenter(coords, _grid.position, CELL_SIZE_WORLD);
-    
-
-    // Type
-    world.entity.type[e] = EntityType::ENTITY_PLAYER;
-
-    // Transform
-    world.transform.pos[e] = _pos;
-    world.transform.size[e] = {24, 24};
-    world.transform.scale[e] = {4,4};
-    world.transform.cell[e] = coords;
-
-    //Collider
-    world.collider.has[e] = true;
-    world.collider.bounds[e] = {_pos.x - world.transform.size[e].x/2, _pos.y - world.transform.size[e].y/2, 32, 32};
-    world.collider.is_under_cursor[e] = false;
-
-    // Job
-    world.job.has[e] = true;
-    world.job.type[e] = job;
-
-    // Hover
-    world.hover.has[e] = true;
-
-    // Path
-    world.path.has[e] = true;
-
-    // Signal
-    world.signal.has[e] = true;
-    world.signal.data[e].signal = Signal::SIGNAL_BLUE;
-
-    // Modifier
-    world.modifier.has[e] = true;
-    world.modifier.data[e].add = Signal::SIGNAL_BLUE;
-
-    // Render
-    world.render.layer[e] = 3;
-    world.render.color[e] = WHITE;
-    world.render.src[e] = {0, 0, 24, 24};
-    world.render.texture[e] = GetTextureFromJob(job);
-
-    return e;
-}
-
-TextureID GetTextureFromJob(JobType job){
-    if (job == JobType::JOB_MAGE){
-        return TextureID::Mage;
-    }
-    return TextureID::NoTexture;
-}
-
-int SpawnKey(World& w, Vector2i coords)
-{
-    int e = CreateEntity(w);
-    if (e == -1) return -1;
-
-    Grid _grid = w.loaded_levels[w.active_level].grid;
-    Vector2 _pos = CellCenter(coords, _grid.position, CELL_SIZE_WORLD);
-    
-
-    // Type
-    w.entity.type[e] = EntityType::ENTITY_KEY;
-
-    // Transform
-    w.transform.pos[e] = _pos;
-    w.transform.size[e] = {32, 32};
-    w.transform.scale[e] = {2,2};
-    w.transform.cell[e] = coords;
-
-    //Collider
-    w.collider.has[e] = true;
-    w.collider.bounds[e] = {_pos.x - w.transform.size[e].x/2, _pos.y - w.transform.size[e].y/2, 32, 32};
-    w.collider.is_under_cursor[e] = false;
-
-    // Hover
-    w.hover.has[e] = true;
-
-    // Path
-    w.path.has[e] = true;
-
-    // Signal
-    w.signal.has[e] = true;
-    w.signal.data[e].signal = Signal::SIGNAL_KEY;
-
-    // Render
-    w.render.layer[e] = 3;
-    w.render.color[e] = WHITE;
-    w.render.src[e] = {0, 0, 32, 32};
-    w.render.texture[e] = TextureID::Key;
-
-    return e;
-}
 
 int SpawnDoor(World& w, Vector2i coords)
 {
@@ -260,36 +303,6 @@ int SpawnCellConnector(World& world, Vector2 pos){
     //Collider
     world.collider.has[e] = true;
     world.collider.bounds[e] = {pos.x - world.transform.size[e].x/2, pos.y - world.transform.size[e].y/2, 32, 32};
-
-    return e;
-
-}
-
-int SpawnCursor(World& world, Vector2 pos){
-    int e = CreateEntity(world);
-    if (e == -1) return -1;
-
-    // Type
-    world.entity.type[e] = EntityType::ENTITY_CURSOR;
-
-    // Transform
-    world.transform.pos[e] = pos;
-    world.transform.size[e] = {64, 64};
-    world.transform.scale[e] = {1, 1};
-
-    // Render
-    world.render.layer[e] = 6;
-    world.render.color[e] = WHITE;
-    world.render.src[e] = {0, 0, 64, 64};
-    world.render.texture[e] = TextureID::Cursor_Base;
-
-
-    //Collider
-    world.collider.has[e] = true;
-    world.collider.bounds[e] = {pos.x - world.transform.size[e].x/2, pos.y - world.transform.size[e].y/2, 64, 64};
-
-    //Cursor
-    world.cursor.has[e] = true;
 
     return e;
 

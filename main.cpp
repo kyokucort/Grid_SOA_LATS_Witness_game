@@ -14,7 +14,6 @@
 
 AssetManager assets;
 World world;
-Editor editor;
 CameraController::CameraController camera_control;
 
 
@@ -87,18 +86,26 @@ void Update()
 {
     WorldManager::Update_World(world, camera_control, GetFrameTime());
     CameraController::Update(camera_control);
-    CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
-    Editor_Update(world, editor, camera_control);
+    //CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
+    //Editor_Update(world, editor, camera_control);
 
-    
+    if (IsKeyPressed(KEY_TAB))
+    {
+        world.editor.enabled = !world.editor.enabled;
+    }
+
+    if (world.editor.enabled)
+    {
+        EditorUpdate(world);
+    }
+    else
+    {
+        WorldManager::Update_World(world, camera_control, GetFrameTime());
+    }
 
     // Pour debug, a supprimer
     if (IsKeyPressed(KEY_SPACE)){
         ToggleFullscreen();
-    }
-    if (IsKeyPressed(KEY_TWO)){
-        printf("entity count is %i\n #####\n\n", world.entity.count);
-        world.loaded_levels.push_back(SpawnLevel({800, 200}, 5, 9));
     }
 
     if (IsKeyPressed(KEY_R)){
@@ -114,13 +121,13 @@ void Draw()
         BeginMode2D(camera_control.cam);
 
         RenderSystem::DrawWorld(world, assets);
-        Editor_Draw(world, editor);
+        //Editor_Draw(world, editor);
 
         EndMode2D();
 
         // UI Drawings
 
-        Editor_Draw_UI(world, editor, camera_control);
+        //Editor_Draw_UI(world, editor, camera_control);
         DrawFPS(SCREEN_WIDTH - 30, SCREEN_HEIGHT - 30);
         DrawText(TextFormat("%i - %i", world.cursor_cell.x, world.cursor_cell.y), 20, 700, 12, BLACK);
         DrawText(TextFormat("%.0f - %.0f", world.mouse_world.x, world.mouse_world.y), 20, 720, 12, BLACK);

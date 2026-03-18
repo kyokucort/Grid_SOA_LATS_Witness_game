@@ -16,6 +16,7 @@
 #include "spatial/Grid.hpp"
 #include "camera/CameraController.hpp"
 #include <vector>
+#include "editor/EditorState.hpp"
 
 
 struct CollisionEvent
@@ -26,6 +27,7 @@ struct CollisionEvent
 
 struct World
 {
+    EditorState editor;
     Grid global_grid;
     std::vector<Level> levels;
     std::vector<Level> loaded_levels;
@@ -53,9 +55,9 @@ struct World
 namespace WorldManager
 {
     void Init_World(World& world, CameraController::CameraController& camera_control);
-    void Init_Levels(World& world);
     void Update_World(World& world, CameraController::CameraController cam, float dt);
-    int World_FindLevelContaining(const World& world, Vector2 pos);
     int World_FindPlayer(const World& world);
     int World_FindCursor(const World& world);
+    void MoveEntity(World& w, int e, Vector2i new_cell);
+    void RemoveEntity(World& w, int e);
 }

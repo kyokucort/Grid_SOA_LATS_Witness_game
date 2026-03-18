@@ -26,6 +26,16 @@ struct Grid
     std::vector<Vector2i> path;
 };
 
+
+
+Cell* GetCell(Grid& grid, int x, int y);
+
+void GridInsert(Grid& grid, int e, Vector2i cell);
+void GridRemove(Grid& grid, int e, Vector2i cell);
+
+
+
+
 void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position);
 void Init_Cells(Grid& grid);
 Cell& Grid_GetCell(Grid& grid, int x, int y);

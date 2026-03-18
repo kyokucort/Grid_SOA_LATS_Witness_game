@@ -8,6 +8,7 @@
 #include "systems/LogicSystem.hpp"
 #include "modules/math/grid_math.hpp"
 #include "assert.h"
+#include "editor/Editor.hpp"
 
 
 namespace WorldManager{
@@ -17,48 +18,13 @@ namespace WorldManager{
         world.entity.count = 0;
         world.active_level = 0;
         world.active_interactible = -1;
-        world.loaded_levels.push_back(SpawnLevel({0, 0}, 14, 8));
-        world.loaded_levels.push_back(SpawnLevel({14*128, 0}, 14, 8));
 
         CameraController::Init(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
-        CursorSystem::Init(world);
-        Init_Levels(world);
 
-        Init_WorldGrid(world.global_grid, 5, 5, 128, {0, 0});
-
-// BORDEL POUR DEBUGGER UN INIT WORLD MAIS A REMPLACER PAR UN CHARGEMENT PROPRE DU FICHIER MONDE
-
-        SpawnWall(world, world.loaded_levels[0].grid.cells[0].center);
-    }
-
-
-
-// Separer la logic de Level et tout dans un Level.cpp ou pas de Level.cpp du tout ?
-
-    void Init_Levels(World& world)
-    {
-        for (int i = 0; i < world.loaded_levels.size(); i++)
-        {
-            Grid& _grid = world.loaded_levels[i].grid;
-            for (int c = 0; c < _grid.cells.size(); c++){
-                Cell& _cell = _grid.cells[c];
-                
-                Cell_AddEntity(_cell, SpawnFloorGrass(world, _cell.center));
-                Cell_AddEntity(_cell, SpawnCellConnector(world, _cell.center));
-            }
-
-        }
-        Grid& _grid = world.loaded_levels[world.active_level].grid;
-        Cell& _cell_start = Grid_GetCell(_grid, 2, 6);
-        Cell_AddEntity(_cell_start, SpawnPlayer(world, {2, 6}, JobType::JOB_MAGE));
-        Cell& _key_start = Grid_GetCell(_grid, 10, 6);
-        Cell_AddEntity(_key_start, SpawnKey(world, {10, 6}));
-        Cell& _key_start2 = Grid_GetCell(_grid, 8, 6);
-        Cell_AddEntity(_key_start2, SpawnKey(world, {8, 6}));
-        Cell& _key_start3 = Grid_GetCell(_grid, 7, 3);
-        Cell_AddEntity(_key_start3, SpawnKey(world, {7, 3}));
-        Cell& _door = Grid_GetCell(_grid, 12, 2);
-        Cell_AddEntity(_door, SpawnDoor(world, {12, 2}));
+        Init_WorldGrid(world.global_grid, 25, 25, CELL_SIZE_WORLD, {0, 0});
+        InitSpawnSystem();
+        CursorSystem::Init(world, CreateFromArchetype(world, ARCH_CURSOR, {0, 1}));
+        CreateFromArchetype(world, ARCH_KEY, {2, 2});
     }
 
 
@@ -78,16 +44,9 @@ namespace WorldManager{
         LogicSystem::LogicSystem(world, world.state);
 
 
-        // On check si le player a change de level (trouver une autre place. Collision ? Gameplay ? Level?)
-        int _player = World_FindPlayer(world);
-        Vector2 _playerpos = world.transform.pos[_player];
-        int newLevel = World_FindLevelContaining(world, _playerpos);
-
-        if (newLevel != -1 && newLevel != world.active_level)
-        {
-            world.active_level = newLevel;
+        if (IsKeyPressed(KEY_P)){
+            CreateFromArchetype(world, ARCH_PLAYER, {1, 1});
         }
-
 
     }
 
@@ -95,15 +54,6 @@ namespace WorldManager{
 /////////////////////////////////////////////////////////
 /// HELPERS
 /////////////////////////////////////////////////////////
-
-    int World_FindLevelContaining(const World& world, Vector2 pos)
-    {
-        for (int i = 0; i < world.loaded_levels.size(); i++){
-            if (CheckCollisionPointRec(pos, world.loaded_levels[i].collider_editor))
-                return i;
-        }
-        return -1;
-    }
 
     int World_FindPlayer(const World& world)
     {   
@@ -122,4 +72,51 @@ namespace WorldManager{
         }
         return -1;
     }
+
+    void MoveEntity(World& w, int e, Vector2i new_cell)
+    {
+        Vector2i old = w.transform.cell[e];
+
+        if (old.x == new_cell.x && old.y == new_cell.y)
+            return;
+
+        GridRemove(w.global_grid, e, old);
+        GridInsert(w.global_grid, e, new_cell);
+
+        w.transform.cell[e] = new_cell;
+
+        // update position world
+        w.transform.pos[e] = CellCenter(new_cell, w.global_grid.position, w.global_grid.cell_size);
+        w.collider.bounds[e].x = w.transform.pos[e].x - w.transform.size[e].x/2; // On bouge le collider bounds ici. Bonne idee ??
+        w.collider.bounds[e].y = w.transform.pos[e].y - w.transform.size[e].y/2;
+    }
+    
+    void RemoveEntity(World& w, int e)
+    {
+        if (!w.entity.alive[e])
+            return;
+
+        // 1. retirer de la grid
+        Vector2i cell = w.transform.cell[e];
+        GridRemove(w.global_grid, e, cell);
+
+        // 2. reset composants
+        w.collider.has[e] = false;
+        w.cursor.has[e]   = false;
+        w.job.has[e]      = false;
+        w.hover.has[e]    = false;
+        w.path.has[e]     = false;
+        w.signal.has[e]   = false;
+        w.modifier.has[e] = false;
+
+        // (optionnel) reset transform
+        w.transform.pos[e] = {0,0};
+        w.transform.cell[e] = {0,0};
+
+        // 3. marquer mort
+        w.entity.alive[e] = false;
+        w.entity.count--;
+    }
 }
+
+

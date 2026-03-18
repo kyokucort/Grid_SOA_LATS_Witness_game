@@ -17,13 +17,10 @@ namespace RenderSystem
         Vector2 position;
     };
 
-
-
     void CollectRenders(World& world, AssetManager assets);
     void DrawPool(World& world, AssetManager assets);
-    void DrawWorld(World& world, AssetManager& assets);
-    void DrawLevel(World& world, int index);
-    DrawCmd GetDrawCmd(World& world, int index, AssetManager assets);
-    void DrawPath(World& w);
+    void DrawColliders(World& w);
     void DrawGrid(World& w);
+    void DrawPath(World& w);
+    void DrawWorld(World& world, AssetManager& assets);
 }

@@ -5,6 +5,7 @@
 #include <math.h>
 #include "raymath.h"
 #include "serialization/WorldSerializer.hpp"
+#include "systems/SpawnSystem.hpp"
 
 constexpr Vector2 BOX = {192, 108};
 constexpr Vector2 MARGIN = {96, 54};
@@ -22,7 +23,7 @@ std::string txt_current_mode = "NONE";
 
 
 int selected_level = -1;
-
+/*
 Rectangle GetRectangleFromCoords(int x, int y)
 {
     Rectangle _rec;
@@ -212,4 +213,114 @@ float Snap(float value, float snap)
     return value;
 }
 
+*/
 
+//##################################
+//
+//
+//
+
+Vector2i GetMouseCell(World& w)
+{
+    Vector2 mouse = GetMousePosition();
+
+    Vector2 local;
+    local.x = mouse.x - w.global_grid.position.x;
+    local.y = mouse.y - w.global_grid.position.y;
+
+    Vector2i cell;
+    cell.x = (int)(local.x / w.global_grid.cell_size);
+    cell.y = (int)(local.y / w.global_grid.cell_size);
+
+    return cell;
+}
+
+
+void EditorSpawn(World& w, Vector2i cell)
+{
+    //int e = CreateEntity(w);
+    //if (e == -1) return;
+
+    int e = CreateFromArchetype(w, w.editor.selected_archetype, cell);
+    if (e == -1) return;
+
+    WorldManager::MoveEntity(w, e, cell);
+}
+
+void EditorDelete(World& w, Vector2i cell)
+{
+    Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+    if (!c || c->count == 0) return;
+
+    int e = c->entities[c->count - 1]; // top entity
+    WorldManager::RemoveEntity(w, e);
+}
+
+void EditorHandleDrag(World& w, Vector2i cell)
+{
+    // Start drag
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+        if (c && c->count > 0)
+        {
+            w.editor.selected_entity = c->entities[c->count - 1];
+        }
+    }
+
+    // End drag
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+    {
+        if (w.editor.selected_entity != -1)
+        {
+            WorldManager::MoveEntity(w, w.editor.selected_entity, cell);
+            w.editor.selected_entity = -1;
+        }
+    }
+}
+
+void EditorHandleClick(World& w, Vector2i cell)
+{
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+
+        if (!c || c->count == 0)
+        {
+            EditorSpawn(w, cell);
+        }
+    }
+
+    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+    {
+        EditorDelete(w, cell);
+    }
+}
+
+void EditorDraw(World& w)
+{
+    Vector2i cell = w.editor.hovered_cell;
+
+    if (cell.x < 0 || cell.y < 0) return;
+
+    float size = w.global_grid.cell_size;
+
+    DrawRectangleLines(
+        w.global_grid.position.x + cell.x * size,
+        w.global_grid.position.y + cell.y * size,
+        size,
+        size,
+        RED
+    );
+}
+
+void EditorUpdate(World& w)
+{
+    Vector2i cell = w.cursor_cell;
+    w.editor.hovered_cell = cell;
+
+    //EditorSelectArchetype(w);
+
+    EditorHandleDrag(w, cell);
+    EditorHandleClick(w, cell);
+}

@@ -14,11 +14,7 @@ namespace MovementSystem
 
             if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
             {
-                if (world.job.type[i] != JobType::JOB_MAGE) continue;
                 Update_Player(world, i, dt);
-                
-                world.collider.bounds[i].x = world.transform.pos[i].x - world.transform.size[i].x/2; // On bouge le collider bounds ici. Bonne idee ??
-                world.collider.bounds[i].y = world.transform.pos[i].y - world.transform.size[i].y/2;
             }
 
         }
@@ -27,27 +23,28 @@ namespace MovementSystem
 
 // Integration basique pour le moment
 
-    void Update_Player(World& w, int index, float dt){
-        Vector2i p_cell = w.transform.cell[index];
+    void Update_Player(World& w, int index, float dt)
+    {
+        Vector2i dir = {0,0};
 
-        if (IsKeyPressed(KEY_W))
+        if (IsKeyPressed(KEY_W)) dir = {0,-1};
+        if (IsKeyPressed(KEY_S)) dir = {0,1};
+        if (IsKeyPressed(KEY_A)) dir = {-1,0};
+        if (IsKeyPressed(KEY_D)) dir = {1,0};
+        Vector2i current = w.transform.cell[index];
+        Vector2i target  = { current.x + dir.x, current.y + dir.y };
+        if (dir.x != 0 || dir.y != 0)
         {
-            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[3]);
-        }
-        else if (IsKeyPressed(KEY_S))
-        {
-            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[2]);
-        }
-        else if (IsKeyPressed(KEY_D))
-        {
-            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[0]);
-        }
-        else if (IsKeyPressed(KEY_A))
-        {
-            MovePlayer(w, index, p_cell, p_cell + CARDINAL_DIRS[1]);
-        }
+            WorldManager::MoveEntity(w, index, target);
+        }   
     }
 
+
+// #########################################################
+// A EFFACER
+//
+//
+//
     void MovePlayer(World& w, int player, Vector2i old_cell, Vector2i new_cell)
     {
         Grid& grid = w.loaded_levels[w.active_level].grid;

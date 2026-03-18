@@ -5,25 +5,19 @@
 #include <cmath>
 
 
-inline Vector2i WorldToCell(const Level& level, Vector2 world_pos)
+inline Vector2i WorldToCell(Vector2 world_pos)
 {
-    Vector2 local =
-    {
-        world_pos.x - level.position.x,
-        world_pos.y - level.position.y
-    };
-
     return {
-        (int)floor(local.x / level.grid.cell_size),
-        (int)floor(local.y / level.grid.cell_size)
+        (int)floor(world_pos.x / CELL_SIZE_WORLD),
+        (int)floor(world_pos.y / CELL_SIZE_WORLD)
     };
 }
 
-inline Vector2 CellToWorld(const Level& level, Vector2i cell)
+inline Vector2 CellToWorld(Vector2i cell)
 {
     return {
-        level.position.x + cell.x * level.grid.cell_size,
-        level.position.y + cell.y * level.grid.cell_size
+        cell.x * (float)CELL_SIZE_WORLD,
+        cell.y * (float)CELL_SIZE_WORLD
     };
 }
 

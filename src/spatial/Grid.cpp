@@ -101,3 +101,39 @@ int GetCellFromCoords(Grid& grid, int x, int y)
     return -1;
 }
 
+Cell* GetCell(Grid& grid, int x, int y)
+{
+    if (x < 0 || y < 0 || x >= grid.width || y >= grid.height)
+        return nullptr;
+
+    return &grid.cells[y * grid.width + x];
+}
+
+
+void GridInsert(Grid& grid, int e, Vector2i cell)
+{
+    Cell* c = GetCell(grid, cell.x, cell.y);
+    if (!c) return;
+
+    c->entities[c->count++] = e;
+}
+
+void GridRemove(Grid& grid, int e, Vector2i cell)
+{
+    Cell* c = GetCell(grid, cell.x, cell.y);
+    if (!c) return;
+
+    for (int i = 0; i < c->count; i++)
+    {
+        if (c->entities[i] == e)
+        {
+            c->entities[i] = c->entities[c->count - 1];
+            c->count--;
+            return;
+        }
+    }
+
+    // debug only
+    // assert(false);
+}
+

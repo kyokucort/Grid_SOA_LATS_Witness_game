@@ -1,12 +1,11 @@
 #include "RenderSystem.hpp"
 #include "modules/math/grid_math.hpp"
+#include "editor/Editor.hpp"
 
 
 namespace RenderSystem
 {
     std::vector<DrawCmd> queue;
-
-
 
 
     void CollectRenders(World& world, AssetManager assets)
@@ -34,13 +33,6 @@ namespace RenderSystem
             if (world.hover.hovered[i] && world.path.has[i])
             {
                 cmd.color = BLUE;
-                /*
-                if (world.entity.type[i] == EntityType::ENTITY_CELL_CONNECTOR)
-                {
-                    cmd.color = BLUE;
-                }
-                */
-
             }
 
             queue.push_back(cmd);
@@ -64,19 +56,17 @@ namespace RenderSystem
             DrawTexturePro(*cmd.tex, cmd.src, cmd.dst, {0, 0}, 0.0f, cmd.color);
         }
 
-        for (int i=0 ; i < world.loaded_levels.size(); i++)
-        {
-            //DrawLevel(world, i);
-            DrawGrid(world);
-        }
+        
+    }
 
+    void DrawColliders(World& w)
+    {
         for (int i=0 ; i < MAX_ENTITIES; i++)
         {
-            if (!world.entity.alive[i]) continue;
-            DrawRectangleLinesEx(world.collider.bounds[i], 2.0f, PINK);
+            if (!w.entity.alive[i]) continue;
+            DrawRectangleLinesEx(w.collider.bounds[i], 2.0f, PINK);
         }
-        DrawPath(world);
-        
+
     }
 
     void DrawGrid(World& w)
@@ -93,54 +83,15 @@ namespace RenderSystem
         {
             Vector2i _coords = CellCoords(i, _grid.width);
             Vector2 _center =  CellCenter(_coords, _grid.position, _grid.cell_size);
-
-            DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _center.x - 48, _center.y - 36, 12, WHITE);
-            DrawText(TextFormat("%i - %i", _coords.x, _coords.y), _center.x - 48, _center.y - 48, 12, WHITE);
+            DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _center.x - 32, _center.y - 32, 10, GRAY);
+            DrawText(TextFormat("%i - %i", _coords.x, _coords.y), _center.x - 32, _center.y - 16, 10, GRAY);
         }
 
     }
 
-    void DrawLevel(World& world, int index)
-    {
-        Grid _grid = world.loaded_levels[index].grid;
-        for (int _x=0; _x < _grid.width; _x++){
-            for (int _y=0; _y < _grid.height; _y++){
-                    Vector2 _draw_pos = {_grid.position.x + (_x * _grid.cell_size), _grid.position.y + (_y * _grid.cell_size)};
-                    Rectangle _rec = {_draw_pos.x, _draw_pos.y, _grid.cell_size, _grid.cell_size};
-                    DrawRectangleLinesEx(_rec, 2.0f, GRAY);
-            }
-        }
-
-        for (int i = 0; i < _grid.cells.size(); i++)
-        {
-            //DrawCircleV(_grid.cells[i].center, 12.0f, RAYWHITE);
-            //DrawText(TextFormat("%0.1f - %0.1f", _grid.cells[i].coords.x, _grid.cells[i].coords.y), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 48, 12, WHITE);
-            DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 36, 12, WHITE);
-            //DrawText(TextFormat("WALL = %i", _grid.cells[i].is_wall), _grid.cells[i].center.x - 48, _grid.cells[i].center.y - 24, 12, WHITE);
-        }
-
-
-        //DrawText(TextFormat("Level : %i", index), _grid.position.x, _grid.position.y, 32, RED);
-        //DrawText(TextFormat("Collisions : %i", world.collision_events.size()), _grid.position.x, _grid.position.y + 128, 32, WHITE);
-        DrawText(TextFormat("PATH SIZE : %i", _grid.path.size()), _grid.position.x, _grid.position.y + 128, 32, WHITE);
-        DrawText(TextFormat("STATE : %i", world.state), _grid.position.x, _grid.position.y + 170, 32, WHITE);
-        Rectangle _border = {_grid.position.x, _grid.position.y, _grid.width * _grid.cell_size, _grid.height * _grid.cell_size};
-        DrawRectangleLinesEx(_border, 4.0f, GRAY);
-        if (_grid.path.size() > 0){
-            //DrawText(TextFormat("Last Node : %0.1f - %0.1f", _grid.path.back().x, _grid.path.back().y), _grid.position.x, _grid.position.y + 256, 32, WHITE);
-            //DrawText(TextFormat("First Node : %0.1f - %0.1f", _grid.path[0].x, _grid.path[0].y), _grid.position.x, _grid.position.y + 512, 32, WHITE);
-        }
-    }
-
-
-    void DrawWorld(World& world, AssetManager& assets)
-    {
-        DrawPool(world, assets);
-    }
-    
     void DrawPath(World& w)
     {
-        Grid _grid = w.loaded_levels[w.active_level].grid;
+        Grid _grid = w.global_grid;
 
         for (int i=0 ; i < MAX_ENTITIES; i++)
         {
@@ -163,8 +114,17 @@ namespace RenderSystem
                 DrawLineEx(a, b, 16, Fade(BLUE, 0.8f));
             }
         }
-
-
     }
 
+    void DrawWorld(World& world, AssetManager& assets)
+    {
+        DrawGrid(world);
+        DrawPool(world, assets);
+        DrawPath(world);
+        DrawColliders(world);
+        if (world.editor.enabled)
+        {
+            EditorDraw(world);
+        }
+    }
 }
