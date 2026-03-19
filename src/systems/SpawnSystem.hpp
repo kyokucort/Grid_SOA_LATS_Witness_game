@@ -22,7 +22,7 @@ void BuildPlayer(World& w, int e, Vector2i cell);
 void BuildCursor(World& w, int e, Vector2i cell);
 void BuildKey(World& w, int e, Vector2i cell);
 
-void AddEntity(World& w, int e, EntityType type);
+void AddEntity(World& w, int e, Archetype type);
 void AddTransform(World& w, int e, Vector2 pos, Vector2 size, Vector2 scale, Vector2i cell);
 void AddCollider(World& w, int e, Vector2 pos, Vector2 size);
 void AddRender(World& w, int e, TextureID id_texture, Rectangle src);

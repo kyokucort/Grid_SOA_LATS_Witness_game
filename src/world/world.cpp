@@ -58,7 +58,7 @@ namespace WorldManager{
     int World_FindPlayer(const World& world)
     {   
         for (int i = 0; i < MAX_ENTITIES; i++){
-            if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
+            if (world.entity.type[i] == Archetype::ARCH_PLAYER)
                 return i;
         }
         return -1;
@@ -67,7 +67,7 @@ namespace WorldManager{
     int World_FindCursor(const World& world)
     {   
         for (int i = 0; i < MAX_ENTITIES; i++){
-            if (world.entity.type[i] == EntityType::ENTITY_CURSOR)
+            if (world.entity.type[i] == Archetype::ARCH_CURSOR)
                 return i;
         }
         return -1;

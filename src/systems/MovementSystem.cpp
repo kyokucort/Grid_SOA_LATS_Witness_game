@@ -7,12 +7,12 @@ namespace MovementSystem
 {
     void Update(World& world, float dt)
     {
-        for (int i = 0; i < world.entity.count; i++)
+        for (int i = 0; i < MAX_ENTITIES; i++)
         {
             if (!world.entity.alive[i])
                 continue;
 
-            if (world.entity.type[i] == EntityType::ENTITY_PLAYER)
+            if (world.entity.type[i] == Archetype::ARCH_PLAYER)
             {
                 Update_Player(world, i, dt);
             }

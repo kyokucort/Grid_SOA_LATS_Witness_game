@@ -4,6 +4,7 @@
 #include "world/world.hpp"
 #include "camera/CameraController.hpp"
 #include "editor/EditorState.hpp"
+#include "editor/UI.hpp"
 
 
 /*
@@ -20,12 +21,20 @@ int GetLevelUnderMouse(std::vector<Level> levels, Camera2D cam);
 float Snap(float value, float snap);
 */
 
-Vector2i GetMouseCell(World& w);
-void EditorSpawn(World& w, Vector2i cell);
-void EditorDelete(World& w, Vector2i cell);
-void EditorHandleDrag(World& w, Vector2i cell);
-void EditorHandleClick(World& w, Vector2i cell);
-void EditorDraw(World& w);
-void EditorUpdate(World& w);
-
+namespace Editor
+{
+    Vector2i GetMouseCell(World& w);
+    void Spawn(World& w, Vector2i cell);
+    void Delete(World& w, Vector2i cell);
+    void HandleDrag(World& w, Vector2i cell);
+    void HandleClick(World& w, Vector2i cell);
+    void Draw(World& w);
+    void Update(World& w, UIContext& ctx);
+    void Draw_UI(World& w, UIContext& ctx);
+    void DrawTopBar(UIGrid& ui, UIContext& ctx);
+    void DrawSidePanel(UIGrid& ui, UIContext& ctx);
+    void DrawBottomBar(UIGrid& ui, UIContext& ctx);
+    void DrawPalette(UIGrid& ui, UIContext& ctx, EditorState& editor);
+    void EditorPaint(World& w);
+}
 

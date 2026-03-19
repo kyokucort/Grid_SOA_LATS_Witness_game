@@ -7,23 +7,253 @@
 #include "serialization/WorldSerializer.hpp"
 #include "systems/SpawnSystem.hpp"
 
-constexpr Vector2 BOX = {192, 108};
-constexpr Vector2 MARGIN = {96, 54};
+struct PaletteItem
+{
+    const char* name;
+    Archetype type;
+};
 
-Vector2 mouse_world;
-bool mouse_dragging = false;
+PaletteItem palette[] = {
+    {"Player", ARCH_PLAYER},
+    {"Key",    ARCH_KEY},
+};
+
+constexpr int PALETTE_COUNT = sizeof(palette) / sizeof(PaletteItem);
 
 
-Vector2 cell = {-1, 1};
+namespace Editor
+{
+    Vector2i GetMouseCell(World& w)
+    {
+        Vector2 mouse = GetMousePosition();
+
+        Vector2 local;
+        local.x = mouse.x - w.global_grid.position.x;
+        local.y = mouse.y - w.global_grid.position.y;
+
+        Vector2i cell;
+        cell.x = (int)(local.x / w.global_grid.cell_size);
+        cell.y = (int)(local.y / w.global_grid.cell_size);
+
+        return cell;
+    }
 
 
-Vector2 base_label = {300, 100};
-Vector2 base_padding = {20, 20};
-std::string txt_current_mode = "NONE";
+    void Spawn(World& w, Vector2i cell)
+    {
+        //int e = CreateEntity(w);
+        //if (e == -1) return;
+
+        int e = CreateFromArchetype(w, w.editor.selected_archetype, cell);
+        if (e == -1) return;
+
+        WorldManager::MoveEntity(w, e, cell);
+    }
+
+    void Delete(World& w, Vector2i cell)
+    {
+        Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+        if (!c || c->count == 0) return;
+
+        int e = c->entities[c->count - 1]; // top entity
+        WorldManager::RemoveEntity(w, e);
+    }
+
+    void HandleDrag(World& w, Vector2i cell)
+    {
+        // Start drag
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+            if (c && c->count > 0)
+            {
+                w.editor.selected_entity = c->entities[c->count - 1];
+            }
+        }
+
+        // End drag
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        {
+            if (w.editor.selected_entity != -1)
+            {
+                WorldManager::MoveEntity(w, w.editor.selected_entity, cell);
+                w.editor.selected_entity = -1;
+            }
+        }
+    }
+
+    void HandleClick(World& w, Vector2i cell)
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+
+            if (!c || c->count == 0)
+            {
+                Spawn(w, cell);
+            }
+        }
+
+        if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+        {
+            Delete(w, cell);
+        }
+    }
+
+    void Draw(World& w)
+    {
+        Vector2i cell = w.editor.hovered_cell;
+
+        if (cell.x < 0 || cell.y < 0) return;
+
+        float size = w.global_grid.cell_size;
+
+        DrawRectangleLines(
+            w.global_grid.position.x + cell.x * size,
+            w.global_grid.position.y + cell.y * size,
+            size,
+            size,
+            RED
+        );
+    }
+
+    void Update(World& w, UIContext& ctx)
+    {
+        //Vector2i cell = w.cursor_cell;
+        Vector2i cell = GetMouseCell(w);
+        w.editor.hovered_cell = cell;
+
+        //EditorSelectArchetype(w);
+
+        HandleDrag(w, cell);
+        HandleClick(w, cell);
+        if (IsKeyPressed(KEY_P))
+        {
+            w.editor.paint_mode = !w.editor.paint_mode;
+        }
+        if (ctx.request_save)
+        {
+            SaveWorldToFile(w, "bijour.txt");
+            ctx.request_save = false;
+        }
+        if (ctx.request_load)
+        {
+            LoadWorldFromFile(w, "bijour.txt");
+            ctx.request_load = false;
+        }
+    }
+
+    void DrawTopBar(UIGrid& ui, UIContext& ctx)
+    {
+        if (GuiButton(UIGetRect(ui, 0, 0), "Entity"))
+            ctx.selected_tool = 0;
+
+        if (GuiButton(UIGetRect(ui, 1, 0), "Signals"))
+            ctx.selected_tool = 1;
+
+        if (GuiButton(UIGetRect(ui, 2, 0), "Info"))
+            ctx.selected_tool = 2;
+    }
+
+    void DrawSidePanel(UIGrid& ui, UIContext& ctx)
+    {
+        Rectangle panel = UIGetRectSpan(ui, 0, 4, 2, 8);
+        GuiPanel(panel, "");
+
+        switch (ctx.selected_tool)
+        {
+            case 0:
+                GuiLabel(UIGetRect(ui, 0, 1), "Entity Mode");
+                break;
+
+            case 1:
+                GuiLabel(UIGetRect(ui, 0, 1), "Signal Mode");
+                break;
+
+            case 2:
+                GuiLabel(UIGetRect(ui, 0, 1), "Info Mode");
+                break;
+        }
+    }
+
+    void DrawBottomBar(UIGrid& ui, UIContext& ctx)
+    {
+        if (GuiButton(UIGetRect(ui, 6, 8), "Load"))
+            ctx.request_load = true;
+
+        if (GuiButton(UIGetRect(ui, 8, 8), "Save"))
+            ctx.request_save = true;
+    }
+
+    void Draw_UI(World& w, UIContext& ctx)
+    {
+        UIGrid ui = CreateGrid(15, 15);
+        float cell_h = ui.cell_size.y;
+
+        GuiSetStyle(DEFAULT, TEXT_SIZE, (int)(cell_h * 0.3f));
+        DrawTopBar(ui, ctx);
+        DrawSidePanel(ui, ctx);
+        DrawBottomBar(ui, ctx);
+        if (w.editor.paint_mode)
+        {
+            DrawPalette(ui, ctx, w.editor);
+        }
+    }
 
 
-int selected_level = -1;
+    void DrawPalette(UIGrid& ui, UIContext& ctx, EditorState& editor)
+    {
+        Rectangle panel = UIGetRectSpan(ui, 0, 1, 2, 6);
+        GuiPanel(panel, "");
+
+        for (int i = 0; i < PALETTE_COUNT; i++)
+        {
+            Rectangle r = UIGetRect(ui, 0, 1 + i);
+
+            if (GuiButton(r, palette[i].name))
+            {
+                editor.selected_archetype = palette[i].type;
+            }
+
+            // highlight sélection
+            if (editor.selected_archetype == palette[i].type)
+            {
+                DrawRectangleLinesEx(r, 2, RED);
+            }
+        }
+    }
+
+
+    void EditorPaint(World& w)
+    {
+        if (!w.editor.paint_mode)
+            return;
+
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            Vector2i cell = w.editor.hovered_cell;
+
+            // check si déjà une entité (optionnel)
+            Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+
+            if (c && c->count == 0)
+            {
+                int e = CreateEntity(w);
+                if (e == -1) return;
+
+                CreateFromArchetype(w, w.editor.selected_archetype, cell);
+                WorldManager::MoveEntity(w, e, cell);
+            }
+        }
+    }
+}
+
+
+
 /*
+ *
+je veux rendre le mode editor un plus visuel. Je pense organiser mon ecran en bloc, pour y faire appraitre des cadres selon le mode du editormode (Mode entity, Mode save, Mode info etc...). Mon ecran UI est alors une sorte de grosse GRID de 9*9 ou je peux avoir un bloc avec un text ou avec un bouton etc... enutilisant raygui.h. Voici a quoi ca ressemble. Qu'est-ce que tu en penses ?
+
 Rectangle GetRectangleFromCoords(int x, int y)
 {
     Rectangle _rec;
@@ -220,107 +450,4 @@ float Snap(float value, float snap)
 //
 //
 
-Vector2i GetMouseCell(World& w)
-{
-    Vector2 mouse = GetMousePosition();
-
-    Vector2 local;
-    local.x = mouse.x - w.global_grid.position.x;
-    local.y = mouse.y - w.global_grid.position.y;
-
-    Vector2i cell;
-    cell.x = (int)(local.x / w.global_grid.cell_size);
-    cell.y = (int)(local.y / w.global_grid.cell_size);
-
-    return cell;
-}
-
-
-void EditorSpawn(World& w, Vector2i cell)
-{
-    //int e = CreateEntity(w);
-    //if (e == -1) return;
-
-    int e = CreateFromArchetype(w, w.editor.selected_archetype, cell);
-    if (e == -1) return;
-
-    WorldManager::MoveEntity(w, e, cell);
-}
-
-void EditorDelete(World& w, Vector2i cell)
-{
-    Cell* c = GetCell(w.global_grid, cell.x, cell.y);
-    if (!c || c->count == 0) return;
-
-    int e = c->entities[c->count - 1]; // top entity
-    WorldManager::RemoveEntity(w, e);
-}
-
-void EditorHandleDrag(World& w, Vector2i cell)
-{
-    // Start drag
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        Cell* c = GetCell(w.global_grid, cell.x, cell.y);
-        if (c && c->count > 0)
-        {
-            w.editor.selected_entity = c->entities[c->count - 1];
-        }
-    }
-
-    // End drag
-    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-    {
-        if (w.editor.selected_entity != -1)
-        {
-            WorldManager::MoveEntity(w, w.editor.selected_entity, cell);
-            w.editor.selected_entity = -1;
-        }
-    }
-}
-
-void EditorHandleClick(World& w, Vector2i cell)
-{
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-    {
-        Cell* c = GetCell(w.global_grid, cell.x, cell.y);
-
-        if (!c || c->count == 0)
-        {
-            EditorSpawn(w, cell);
-        }
-    }
-
-    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
-    {
-        EditorDelete(w, cell);
-    }
-}
-
-void EditorDraw(World& w)
-{
-    Vector2i cell = w.editor.hovered_cell;
-
-    if (cell.x < 0 || cell.y < 0) return;
-
-    float size = w.global_grid.cell_size;
-
-    DrawRectangleLines(
-        w.global_grid.position.x + cell.x * size,
-        w.global_grid.position.y + cell.y * size,
-        size,
-        size,
-        RED
-    );
-}
-
-void EditorUpdate(World& w)
-{
-    Vector2i cell = w.cursor_cell;
-    w.editor.hovered_cell = cell;
-
-    //EditorSelectArchetype(w);
-
-    EditorHandleDrag(w, cell);
-    EditorHandleClick(w, cell);
-}
+   

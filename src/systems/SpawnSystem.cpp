@@ -36,7 +36,7 @@ void BuildPlayer(World& w, int e, Vector2i cell)
 {
     Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
 
-    AddEntity(w, e, EntityType::ENTITY_PLAYER);
+    AddEntity(w, e, Archetype::ARCH_PLAYER);
     AddTransform(w, e, pos, {24, 24}, {4, 4}, cell);
     AddCollider(w, e, pos, {32, 32});
     //AddCollider(w, e);
@@ -54,7 +54,7 @@ void BuildCursor(World& w, int e, Vector2i cell)
 {
     Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
 
-    AddEntity(w, e, EntityType::ENTITY_CURSOR);
+    AddEntity(w, e, Archetype::ARCH_CURSOR);
     AddTransform(w, e, pos, {64, 64}, {1, 1}, cell);
     AddRender(w, e, TextureID::Cursor_Base, {0, 0, 64, 64});
     AddCursor(w, e);
@@ -71,7 +71,7 @@ void BuildKey(World& w, int e, Vector2i cell)
 {
     Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
 
-    AddEntity(w, e, EntityType::ENTITY_KEY);
+    AddEntity(w, e, Archetype::ARCH_KEY);
     AddTransform(w, e, pos, {32, 32}, {2, 2}, cell);
     AddRender(w, e, TextureID::Key, {0, 0, 32, 32});
     AddPath(w, e);
@@ -85,7 +85,7 @@ void BuildKey(World& w, int e, Vector2i cell)
 
 }
 
-void AddEntity(World& w, int e, EntityType type)
+void AddEntity(World& w, int e, Archetype type)
 {
     w.entity.type[e] = type;
 }
@@ -185,6 +185,7 @@ void DestroyEntity(World& w, int e)
 }
 
 
+/*
 
 int SpawnDoor(World& w, Vector2i coords)
 {
@@ -196,7 +197,7 @@ int SpawnDoor(World& w, Vector2i coords)
     
 
     // Type
-    w.entity.type[e] = EntityType::ENTITY_DOOR;
+    w.entity.type[e] = Archetype::ARCH_DOOR;
 
     // Transform
     w.transform.pos[e] = _pos;
@@ -238,7 +239,7 @@ int SpawnWall(World& world, Vector2 pos){
     if (e == -1) return -1;
 
     // Type
-    world.entity.type[e] = EntityType::ENTITY_WALL;
+    world.entity.type[e] = Archetype::ARCH_WALL;
 
     // Transform
     world.transform.pos[e] = pos;
@@ -261,7 +262,7 @@ int SpawnFloorGrass(World& world, Vector2 pos){
     if (e == -1) return -1;
 
     // Type
-    world.entity.type[e] = EntityType::ENTITY_FLOOR_GRASS;
+    world.entity.type[e] = Archetype::ARCH_FLOOR_GRASS;
 
     // Transform
     world.transform.pos[e] = pos;
@@ -284,7 +285,7 @@ int SpawnCellConnector(World& world, Vector2 pos){
     if (e == -1) return -1;
 
     // Type
-    world.entity.type[e] = EntityType::ENTITY_CELL_CONNECTOR;
+    world.entity.type[e] = Archetype::ARCH_CELL_CONNECTOR;
 
     // Transform
     world.transform.pos[e] = pos;
@@ -317,3 +318,4 @@ int SpawnCellConnector(World& world, Vector2 pos){
 
 
 
+*/

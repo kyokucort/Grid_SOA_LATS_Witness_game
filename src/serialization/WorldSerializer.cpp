@@ -1,9 +1,98 @@
 #include "WorldSerializer.hpp"
-#include "levels/level.hpp"
+#include "systems/SpawnSystem.hpp"
 
 #include <iostream>
 #include <fstream>
 
+
+ArchetypeEntry archetypes[] = {
+    {ARCH_PLAYER, "PLAYER"},
+    {ARCH_CURSOR, "CURSOR"},
+    {ARCH_KEY,    "KEY"}
+};
+
+constexpr int ARCH_ENTRY_COUNT = sizeof(archetypes) / sizeof(ArchetypeEntry);
+
+void SaveWorldToFile(World& w, const char* filename)
+{
+    std::ofstream file(filename);
+
+    for (int e = 0; e < MAX_ENTITIES; e++)
+    {
+        if (!w.entity.alive[e])
+            continue;
+
+        Archetype type = w.entity.type[e];
+        Vector2i cell = w.transform.cell[e];
+        file << ArchetypeToString(type) << " "
+             << cell.x << " "
+             << cell.y << "\n";
+    }
+
+    file.close();
+}
+
+void ClearWorld(World& w)
+{
+    for (int e = 0; e < MAX_ENTITIES; e++)
+    {
+        if (w.entity.alive[e])
+            WorldManager::RemoveEntity(w, e);
+    }
+}
+
+void LoadWorldFromFile(World& w, const char* filename)
+{
+    std::ifstream file(filename);
+
+    ClearWorld(w);
+
+    std::string type_str;
+    int x, y;
+
+    while (file >> type_str >> x >> y)
+    {
+        Archetype type = StringToArchetype(type_str);
+
+        int e = CreateEntity(w);
+        if (e == -1) continue;
+
+        CreateFromArchetype(w, type, {x, y});
+        WorldManager::MoveEntity(w, e, {x, y});
+    }
+
+    file.close();
+}
+
+const char* ArchetypeToString(Archetype type)
+{
+    for (int i = 0; i < ARCH_ENTRY_COUNT; i++)
+    {
+        if (archetypes[i].type == type)
+            return archetypes[i].name;
+    }
+    return "UNKNOWN";
+}
+
+Archetype StringToArchetype(const std::string& s)
+{
+    for (int i = 0; i < ARCH_ENTRY_COUNT; i++)
+    {
+        if (s == archetypes[i].name)
+            return archetypes[i].type;
+    }
+    return ARCH_NONE;
+}
+//##############################
+//
+//
+//
+//
+//
+//
+//
+///
+/*
 WorldData SerializeWorld(const World& world)
 {
     WorldData data;
@@ -97,3 +186,4 @@ WorldData LoadWorldFromFile(const std::string& path)
 
     return data;
 }
+*/

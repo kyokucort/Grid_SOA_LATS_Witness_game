@@ -9,11 +9,14 @@
 #include "systems/RenderSystem.hpp"
 #include "assets/AssetManager.hpp"
 #include "editor/Editor.hpp"
+#include "editor/UI.hpp"
+
 
 // Main variables
 
 AssetManager assets;
 World world;
+UIContext ui;
 CameraController::CameraController camera_control;
 
 
@@ -52,6 +55,7 @@ int main(void)
 
     while (!WindowShouldClose())
     {
+
         Update();
         Draw();
     }
@@ -84,7 +88,6 @@ void Init()
 
 void Update()
 {
-    WorldManager::Update_World(world, camera_control, GetFrameTime());
     CameraController::Update(camera_control);
     //CameraController::SetTarget(camera_control, world.loaded_levels[world.active_level].center);
     //Editor_Update(world, editor, camera_control);
@@ -92,11 +95,19 @@ void Update()
     if (IsKeyPressed(KEY_TAB))
     {
         world.editor.enabled = !world.editor.enabled;
+        if (world.editor.enabled){
+            EnableCursor();
+            ShowCursor();
+        }
+        else{
+            DisableCursor();
+            HideCursor();
+        }
     }
 
     if (world.editor.enabled)
     {
-        EditorUpdate(world);
+        Editor::Update(world, ui);
     }
     else
     {
@@ -127,7 +138,10 @@ void Draw()
 
         // UI Drawings
 
-        //Editor_Draw_UI(world, editor, camera_control);
+        if (world.editor.enabled)
+        {
+            Editor::Draw_UI(world, ui);
+        }
         DrawFPS(SCREEN_WIDTH - 30, SCREEN_HEIGHT - 30);
         DrawText(TextFormat("%i - %i", world.cursor_cell.x, world.cursor_cell.y), 20, 700, 12, BLACK);
         DrawText(TextFormat("%.0f - %.0f", world.mouse_world.x, world.mouse_world.y), 20, 720, 12, BLACK);

@@ -124,7 +124,7 @@ namespace RenderSystem
         DrawColliders(world);
         if (world.editor.enabled)
         {
-            EditorDraw(world);
+            Editor::Draw(world);
         }
     }
 }

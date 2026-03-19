@@ -1,11 +1,12 @@
 #pragma once
 
 #include "core/config.hpp"
-#include "core/entity_types.hpp"
+#include "core/archetypes.hpp"
 
 struct EntityPool
 {
     bool alive[MAX_ENTITIES];
     int count =0;
-    EntityType type[MAX_ENTITIES];
+    //EntityType type[MAX_ENTITIES];
+    Archetype type[MAX_ENTITIES];
 };
