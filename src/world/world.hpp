@@ -12,7 +12,6 @@
 #include "pools/SignalPool.hpp"
 #include "pools/ModifierPool.hpp"
 #include "pools/LogicPool.hpp"
-#include "levels/level.hpp"
 #include "spatial/Grid.hpp"
 #include "camera/CameraController.hpp"
 #include <vector>
@@ -29,8 +28,6 @@ struct World
 {
     EditorState editor;
     Grid global_grid;
-    std::vector<Level> levels;
-    std::vector<Level> loaded_levels;
     int active_level;
     Vector2i cursor_cell;
     int active_interactible;

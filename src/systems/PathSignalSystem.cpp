@@ -6,8 +6,6 @@ namespace PathSignalSystem
 {
     uint32_t ComputePathSignal(World& w, std::vector<Vector2i>& path)
     {
-        Grid& grid = w.loaded_levels[w.active_level].grid;
-
         if (path.empty())
             return SIGNAL_NONE;
 

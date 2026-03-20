@@ -17,6 +17,7 @@ struct CursorPool
     Vector2 velocity[MAX_ENTITIES];
     Vector2i cell[MAX_ENTITIES];
     CursorAxis axis[MAX_ENTITIES];
+    Vector2 accumulator[MAX_ENTITIES]; // important
     
 
     Vector2 anchor[MAX_ENTITIES];

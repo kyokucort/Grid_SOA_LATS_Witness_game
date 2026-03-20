@@ -25,6 +25,9 @@ namespace LogicSystem
             if (!w.logic.has[e])
                 continue;
 
+            if (!w.hover.hovered[e])
+                continue;
+
             if (CheckRule(state, w.logic.rule[e]))
             {
                 w.entity.alive[e] = false;

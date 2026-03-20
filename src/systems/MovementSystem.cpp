@@ -35,34 +35,33 @@ namespace MovementSystem
         Vector2i target  = { current.x + dir.x, current.y + dir.y };
         if (dir.x != 0 || dir.y != 0)
         {
-            WorldManager::MoveEntity(w, index, target);
+            TryMoveEntity(w, index, target);
+            //WorldManager::MoveEntity(w, index, target);
         }   
     }
 
 
-// #########################################################
-// A EFFACER
-//
-//
-//
-    void MovePlayer(World& w, int player, Vector2i old_cell, Vector2i new_cell)
+
+    bool TryMoveEntity(World& w, int entity, Vector2i target)
     {
-        Grid& grid = w.loaded_levels[w.active_level].grid;
-        Cell& from = Grid_GetCell(grid, old_cell.x, old_cell.y);
-        Cell& to   = Grid_GetCell(grid, new_cell.x, new_cell.y);
+        Cell* cell = GridGetCell(w.global_grid, target);
 
-        if (to.is_wall) return;
+        if (!cell)
+            return false;
 
-        w.transform.pos[player] = to.center;
-        w.transform.cell[player] = new_cell;
-        Grid_MoveEntity(player, from, to);
-    }
+        if (cell->is_wall)
+            return false;
 
+        for (int i = 0; i < cell->count; ++i)
+        {
+            int other = cell->entities[i];
 
-    void Grid_MoveEntity(int entity, Cell& from, Cell& to)
-    {
-        Cell_RemoveEntity(from, entity);
-        Cell_AddEntity(to, entity);
+            if (w.collider.blocks[other])
+                return false;
+        }
+
+        WorldManager::MoveEntity(w, entity, target);
+        return true;
     }
 
 }

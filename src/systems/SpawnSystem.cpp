@@ -16,6 +16,8 @@ void InitSpawnSystem()
     GetBuilders()[ARCH_PLAYER] = BuildPlayer;
     GetBuilders()[ARCH_CURSOR] = BuildCursor;
     GetBuilders()[ARCH_KEY] = BuildKey;
+    GetBuilders()[ARCH_DOOR] = BuildDoor;
+    GetBuilders()[ARCH_WALL] = BuildWall;
 }
 
 int CreateFromArchetype(World& w, Archetype type, Vector2i cell)
@@ -27,14 +29,14 @@ int CreateFromArchetype(World& w, Archetype type, Vector2i cell)
     BaseEntitySetup(w, e);
     GetBuilders()[type](w, e, cell);
 
-    GridInsert(w.global_grid, e, cell);
+    GridInsert(w.global_grid, cell, e);
 
     return e;
 }
 
 void BuildPlayer(World& w, int e, Vector2i cell)
 {
-    Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
+    Vector2 pos = CellCenter(cell, w.global_grid.origin, CELL_SIZE_WORLD);
 
     AddEntity(w, e, Archetype::ARCH_PLAYER);
     AddTransform(w, e, pos, {24, 24}, {4, 4}, cell);
@@ -52,7 +54,7 @@ void BuildPlayer(World& w, int e, Vector2i cell)
 
 void BuildCursor(World& w, int e, Vector2i cell)
 {
-    Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
+    Vector2 pos = CellCenter(cell, w.global_grid.origin, CELL_SIZE_WORLD);
 
     AddEntity(w, e, Archetype::ARCH_CURSOR);
     AddTransform(w, e, pos, {64, 64}, {1, 1}, cell);
@@ -69,14 +71,14 @@ void BuildCursor(World& w, int e, Vector2i cell)
 
 void BuildKey(World& w, int e, Vector2i cell)
 {
-    Vector2 pos = CellCenter(cell, w.global_grid.position, CELL_SIZE_WORLD);
+    Vector2 pos = CellCenter(cell, w.global_grid.origin, CELL_SIZE_WORLD);
 
     AddEntity(w, e, Archetype::ARCH_KEY);
     AddTransform(w, e, pos, {32, 32}, {2, 2}, cell);
     AddRender(w, e, TextureID::Key, {0, 0, 32, 32});
     AddPath(w, e);
     AddHover(w, e);
-    AddSignal(w, e, SIGNAL_BLUE);
+    AddSignal(w, e, SIGNAL_KEY);
     //AddCollider(w, e);
     //AddJob(w, e, JOB_MAGE);
     //AddPath(w, e);
@@ -84,6 +86,38 @@ void BuildKey(World& w, int e, Vector2i cell)
     //AddModifier(w, e, SIGNAL_BLUE);
 
 }
+
+void BuildWall(World& w, int e, Vector2i cell)
+{
+    Vector2 pos = CellCenter(cell, w.global_grid.origin, CELL_SIZE_WORLD);
+
+    AddEntity(w, e, Archetype::ARCH_WALL);
+    AddTransform(w, e, pos, {64, 64}, {1, 1}, cell);
+    AddRender(w, e, TextureID::Wall, {0, 0, 128, 128});
+    AddCollider(w, e, pos, {32, 32});
+
+}
+
+void BuildDoor(World& w, int e, Vector2i cell)
+{
+    Vector2 pos = CellCenter(cell, w.global_grid.origin, CELL_SIZE_WORLD);
+
+    AddEntity(w, e, Archetype::ARCH_DOOR);
+    AddTransform(w, e, pos, {64, 64}, {1, 1}, cell);
+    AddRender(w, e, TextureID::Door, {0, 0, 32, 32});
+    AddCollider(w, e, pos, {32, 32});
+    AddPath(w, e);
+    AddHover(w, e);
+    AddLogic(w, e);
+}
+
+void AddLogic(World& w, int e)
+{
+    w.logic.has[e] = true;
+    w.logic.rule[e].require = Signal::SIGNAL_KEY;
+    w.logic.rule[e].forbid = 0;
+}
+
 
 void AddEntity(World& w, int e, Archetype type)
 {
@@ -101,6 +135,7 @@ void AddTransform(World& w, int e, Vector2 pos, Vector2 size, Vector2 scale, Vec
 void AddCollider(World& w, int e, Vector2 pos, Vector2 size)
 {
     w.collider.has[e] = true;
+    w.collider.blocks[e] = true;
     w.collider.bounds[e] = {pos.x - size.x/2, pos.y - size.y/2, size.x, size.y};
     w.collider.is_under_cursor[e] = false;
 

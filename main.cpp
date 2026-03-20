@@ -107,7 +107,7 @@ void Update()
 
     if (world.editor.enabled)
     {
-        Editor::Update(world, ui);
+        Editor::Update(world, ui, camera_control.cam);
     }
     else
     {

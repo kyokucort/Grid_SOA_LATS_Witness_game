@@ -16,7 +16,6 @@ src/systems/CursorSystem.cpp \
 src/systems/PathSignalSystem.cpp \
 src/systems/LogicSystem.cpp \
 src/world/world.cpp \
-src/levels/level.cpp \
 src/spatial/Grid.cpp \
 src/assets/AssetManager.cpp \
 src/editor/Editor.cpp \

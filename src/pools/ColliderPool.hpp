@@ -6,6 +6,7 @@
 struct ColliderPool
 {
     bool has[MAX_ENTITIES];
+    bool blocks[MAX_ENTITIES];
     Rectangle editor[MAX_ENTITIES];
     Rectangle bounds[MAX_ENTITIES];
     bool is_under_cursor[MAX_ENTITIES];

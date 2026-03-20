@@ -8,7 +8,8 @@
 ArchetypeEntry archetypes[] = {
     {ARCH_PLAYER, "PLAYER"},
     {ARCH_CURSOR, "CURSOR"},
-    {ARCH_KEY,    "KEY"}
+    {ARCH_KEY,    "KEY"},
+    {ARCH_WALL,    "WALL"}
 };
 
 constexpr int ARCH_ENTRY_COUNT = sizeof(archetypes) / sizeof(ArchetypeEntry);

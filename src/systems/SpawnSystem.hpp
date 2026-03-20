@@ -21,6 +21,8 @@ int CreateFromArchetype(World& w, Archetype type, Vector2i cell);
 void BuildPlayer(World& w, int e, Vector2i cell);
 void BuildCursor(World& w, int e, Vector2i cell);
 void BuildKey(World& w, int e, Vector2i cell);
+void BuildDoor(World& w, int e, Vector2i cell);
+void BuildWall(World& w, int e, Vector2i cell);
 
 void AddEntity(World& w, int e, Archetype type);
 void AddTransform(World& w, int e, Vector2 pos, Vector2 size, Vector2 scale, Vector2i cell);
@@ -30,6 +32,7 @@ void AddPath(World& w, int e);
 void AddCursor(World& w, int e);
 void AddHover(World& w, int e);
 void AddSignal(World& w, int e, Signal signal);
+void AddLogic(World& w, int e);
 
 
 

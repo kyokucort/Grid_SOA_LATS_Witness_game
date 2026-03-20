@@ -5,6 +5,8 @@ enum Archetype
     ARCH_PLAYER,
     ARCH_CURSOR,
     ARCH_KEY,
+    ARCH_DOOR,
+    ARCH_WALL,
     ARCH_NONE,
     ARCH_COUNT
 };

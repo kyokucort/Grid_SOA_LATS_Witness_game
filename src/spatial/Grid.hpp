@@ -20,30 +20,37 @@ struct Grid
     int width;
     int height;
     float cell_size;
-    Vector2 position;
+    Vector2 origin;
 
     std::vector<Cell> cells;
     std::vector<Vector2i> path;
 };
 
 
-
-Cell* GetCell(Grid& grid, int x, int y);
-
-void GridInsert(Grid& grid, int e, Vector2i cell);
-void GridRemove(Grid& grid, int e, Vector2i cell);
-
-
-
-
-void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position);
-void Init_Cells(Grid& grid);
-Cell& Grid_GetCell(Grid& grid, int x, int y);
-void CellInsertEntity(Grid& grid, int entity, Vector2 coords);
-void Cell_AddEntity(Cell& cell, int entity);
-void Cell_RemoveEntity(Cell& cell, int entity);
-int GetCellFromCoords(Grid& grid, int x, int y);
-
-
-void Init_WorldCells(Grid& grid);
 void Init_WorldGrid(Grid& grid, int width, int height, float cell_size, Vector2 origin);
+
+// =========================
+// Bounds
+// =========================
+
+bool GridIsInside(const Grid& grid, Vector2i pos);
+
+// =========================
+// Safe access (recommended)
+// =========================
+
+Cell* GridGetCell(Grid& grid, Vector2i pos);
+
+// =========================
+// Unsafe access (fast)
+// ⚠️ assume pos is valid
+// =========================
+
+Cell& GridGetCellUnsafe(Grid& grid, Vector2i pos);
+
+// =========================
+// Entity management
+// =========================
+
+void GridInsert(Grid& grid, Vector2i pos, int entity);
+void GridRemove(Grid& grid, Vector2i pos, int entity);

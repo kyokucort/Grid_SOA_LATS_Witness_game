@@ -6,7 +6,7 @@ void Init_WorldGrid(Grid& grid, int width, int height, float cell_size, Vector2 
     grid.width = width;
     grid.height = height;
     grid.cell_size = cell_size;
-    grid.position = origin;
+    grid.origin = origin;
 
     grid.cells.resize(width * height);
 
@@ -17,70 +17,59 @@ void Init_WorldGrid(Grid& grid, int width, int height, float cell_size, Vector2 
     }
 }
 
-void Init_WorldCells(Grid& grid)
+
+// =========================
+// Bounds
+// =========================
+
+bool GridIsInside(const Grid& grid, Vector2i pos)
 {
-    grid.cells.resize(grid.width * grid.height);
-
-    for (int y = 0; y < grid.height; y++)
-    {
-        for (int x = 0; x < grid.width; x++)
-        {
-            int i = y * grid.width + x;
-
-            Cell& cell = grid.cells[i];
-
-            cell.count = 0;
-            cell.is_wall = false;
-        }
-    }
+    return pos.x >= 0 && pos.y >= 0 &&
+           pos.x < grid.width &&
+           pos.y < grid.height;
 }
 
-void InitGrid(Grid& grid, int width, int height, float cell_size, Vector2 position)
+// =========================
+// Access
+// =========================
+
+Cell& GridGetCellUnsafe(Grid& grid, Vector2i pos)
 {
-    grid.width = width;
-    grid.height = height;
-    grid.cell_size = cell_size;
-    grid.position = position;
-    Init_Cells(grid);
+    return grid.cells[pos.y * grid.width + pos.x];
 }
 
-void Init_Cells(Grid& grid)
+Cell* GridGetCell(Grid& grid, Vector2i pos)
 {
-    for (int y = 0; y < grid.height; y++){
-        for (int x = 0; x < grid.width; x++){
-            Cell _cell;
-            Vector2 _center = grid.position;
-            _center.x += x * grid.cell_size + (grid.cell_size/2);
-            _center.y += y * grid.cell_size + (grid.cell_size/2);
-            _cell.coords = {static_cast<float>(x), static_cast<float>(y)};
-            _cell.center = _center;
-            _cell.is_wall = false;
-            _cell.count = 0;
-            grid.cells.push_back(_cell);
-        }
-    }
+    if (!GridIsInside(grid, pos))
+        return nullptr;
+
+    return &GridGetCellUnsafe(grid, pos);
 }
 
-Cell& Grid_GetCell(Grid& grid, int x, int y)
+// =========================
+// Entity management
+// =========================
+
+void GridInsert(Grid& grid, Vector2i pos, int entity)
 {
-    return grid.cells[y * grid.width + x];
+    Cell& cell = GridGetCellUnsafe(grid, pos);
+
+    // (optionnel) éviter overflow
+    if (cell.count >= 64)
+        return;
+
+    cell.entities[cell.count++] = entity;
 }
 
-
-void Cell_AddEntity(Cell& cell, int entity)
+void GridRemove(Grid& grid, Vector2i pos, int entity)
 {
-    if (cell.count >= MAX_ENTITIES_PER_CELL) return;
+    Cell& cell = GridGetCellUnsafe(grid, pos);
 
-    cell.entities[cell.count] = entity;
-    cell.count++;
-}
-
-void Cell_RemoveEntity(Cell& cell, int entity)
-{
-    for (int i = 0; i < cell.count; i++)
+    for (int i = 0; i < cell.count; ++i)
     {
         if (cell.entities[i] == entity)
         {
+            // swap remove
             cell.entities[i] = cell.entities[cell.count - 1];
             cell.count--;
             return;
@@ -89,51 +78,4 @@ void Cell_RemoveEntity(Cell& cell, int entity)
 }
 
 
-int GetCellFromCoords(Grid& grid, int x, int y)
-{
-    for (int i= 0; i< grid.cells.size(); i++)
-    {
-        if (grid.cells[i].coords.x == x && grid.cells[i].coords.y == y)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-Cell* GetCell(Grid& grid, int x, int y)
-{
-    if (x < 0 || y < 0 || x >= grid.width || y >= grid.height)
-        return nullptr;
-
-    return &grid.cells[y * grid.width + x];
-}
-
-
-void GridInsert(Grid& grid, int e, Vector2i cell)
-{
-    Cell* c = GetCell(grid, cell.x, cell.y);
-    if (!c) return;
-
-    c->entities[c->count++] = e;
-}
-
-void GridRemove(Grid& grid, int e, Vector2i cell)
-{
-    Cell* c = GetCell(grid, cell.x, cell.y);
-    if (!c) return;
-
-    for (int i = 0; i < c->count; i++)
-    {
-        if (c->entities[i] == e)
-        {
-            c->entities[i] = c->entities[c->count - 1];
-            c->count--;
-            return;
-        }
-    }
-
-    // debug only
-    // assert(false);
-}
 

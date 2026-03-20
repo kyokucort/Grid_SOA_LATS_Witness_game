@@ -80,13 +80,13 @@ namespace WorldManager{
         if (old.x == new_cell.x && old.y == new_cell.y)
             return;
 
-        GridRemove(w.global_grid, e, old);
-        GridInsert(w.global_grid, e, new_cell);
+        GridRemove(w.global_grid, old, e);
+        GridInsert(w.global_grid, new_cell, e);
 
         w.transform.cell[e] = new_cell;
 
         // update position world
-        w.transform.pos[e] = CellCenter(new_cell, w.global_grid.position, w.global_grid.cell_size);
+        w.transform.pos[e] = CellCenter(new_cell, w.global_grid.origin, w.global_grid.cell_size);
         w.collider.bounds[e].x = w.transform.pos[e].x - w.transform.size[e].x/2; // On bouge le collider bounds ici. Bonne idee ??
         w.collider.bounds[e].y = w.transform.pos[e].y - w.transform.size[e].y/2;
     }
@@ -98,7 +98,7 @@ namespace WorldManager{
 
         // 1. retirer de la grid
         Vector2i cell = w.transform.cell[e];
-        GridRemove(w.global_grid, e, cell);
+        GridRemove(w.global_grid, cell, e);
 
         // 2. reset composants
         w.collider.has[e] = false;
@@ -118,5 +118,7 @@ namespace WorldManager{
         w.entity.count--;
     }
 }
+
+
 
 

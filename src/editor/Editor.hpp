@@ -23,13 +23,13 @@ float Snap(float value, float snap);
 
 namespace Editor
 {
-    Vector2i GetMouseCell(World& w);
+    Vector2i GetMouseCell(World& w, Camera2D camera);
     void Spawn(World& w, Vector2i cell);
     void Delete(World& w, Vector2i cell);
     void HandleDrag(World& w, Vector2i cell);
     void HandleClick(World& w, Vector2i cell);
     void Draw(World& w);
-    void Update(World& w, UIContext& ctx);
+    void Update(World& w, UIContext& ctx, Camera2D cam);
     void Draw_UI(World& w, UIContext& ctx);
     void DrawTopBar(UIGrid& ui, UIContext& ctx);
     void DrawSidePanel(UIGrid& ui, UIContext& ctx);

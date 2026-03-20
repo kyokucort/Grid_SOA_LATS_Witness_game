@@ -74,7 +74,7 @@ namespace RenderSystem
         Grid _grid = w.global_grid;
         for (int _x=0; _x < _grid.width; _x++){
             for (int _y=0; _y < _grid.height; _y++){
-                    Vector2 _draw_pos = {_grid.position.x + (_x * _grid.cell_size), _grid.position.y + (_y * _grid.cell_size)};
+                    Vector2 _draw_pos = {_grid.origin.x + (_x * _grid.cell_size), _grid.origin.y + (_y * _grid.cell_size)};
                     Rectangle _rec = {_draw_pos.x, _draw_pos.y, _grid.cell_size, _grid.cell_size};
                     DrawRectangleLinesEx(_rec, 2.0f, GRAY);
             }
@@ -82,7 +82,7 @@ namespace RenderSystem
         for (int i = 0; i < _grid.cells.size(); i++)
         {
             Vector2i _coords = CellCoords(i, _grid.width);
-            Vector2 _center =  CellCenter(_coords, _grid.position, _grid.cell_size);
+            Vector2 _center =  CellCenter(_coords, _grid.origin, _grid.cell_size);
             DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _center.x - 32, _center.y - 32, 10, GRAY);
             DrawText(TextFormat("%i - %i", _coords.x, _coords.y), _center.x - 32, _center.y - 16, 10, GRAY);
         }
@@ -106,10 +106,10 @@ namespace RenderSystem
             {
                 Vector2 a;
                 Vector2 b;
-                a.x = _grid.position.x + (_path[p].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
-                a.y = _grid.position.y + (_path[p].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
-                b.x = _grid.position.x + (_path[p+1].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
-                b.y = _grid.position.y + (_path[p+1].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+                a.x = _grid.origin.x + (_path[p].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+                a.y = _grid.origin.y + (_path[p].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+                b.x = _grid.origin.x + (_path[p+1].x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+                b.y = _grid.origin.y + (_path[p+1].y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
 
                 DrawLineEx(a, b, 16, Fade(BLUE, 0.8f));
             }

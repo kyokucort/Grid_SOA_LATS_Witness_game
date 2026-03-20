@@ -6,6 +6,7 @@
 #include "raymath.h"
 #include "serialization/WorldSerializer.hpp"
 #include "systems/SpawnSystem.hpp"
+#include "modules/math/grid_math.hpp"
 
 struct PaletteItem
 {
@@ -16,6 +17,8 @@ struct PaletteItem
 PaletteItem palette[] = {
     {"Player", ARCH_PLAYER},
     {"Key",    ARCH_KEY},
+    {"Door",    ARCH_DOOR},
+    {"Wall",    ARCH_WALL},
 };
 
 constexpr int PALETTE_COUNT = sizeof(palette) / sizeof(PaletteItem);
@@ -23,21 +26,25 @@ constexpr int PALETTE_COUNT = sizeof(palette) / sizeof(PaletteItem);
 
 namespace Editor
 {
-    Vector2i GetMouseCell(World& w)
+
+    Vector2i GetMouseCell(World& w, Camera2D camera)
     {
-        Vector2 mouse = GetMousePosition();
+        // 1. screen → world
+        Vector2 mouse_screen = GetMousePosition();
+        Vector2 mouse_world  = GetScreenToWorld2D(mouse_screen, camera);
 
+        // 2. world → grid local
         Vector2 local;
-        local.x = mouse.x - w.global_grid.position.x;
-        local.y = mouse.y - w.global_grid.position.y;
+        local.x = mouse_world.x - w.global_grid.origin.x;
+        local.y = mouse_world.y - w.global_grid.origin.y;
 
+        // 3. local → cell
         Vector2i cell;
         cell.x = (int)(local.x / w.global_grid.cell_size);
         cell.y = (int)(local.y / w.global_grid.cell_size);
 
         return cell;
     }
-
 
     void Spawn(World& w, Vector2i cell)
     {
@@ -52,7 +59,7 @@ namespace Editor
 
     void Delete(World& w, Vector2i cell)
     {
-        Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+        Cell* c = GridGetCell(w.global_grid, cell);
         if (!c || c->count == 0) return;
 
         int e = c->entities[c->count - 1]; // top entity
@@ -64,7 +71,7 @@ namespace Editor
         // Start drag
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+            Cell* c = GridGetCell(w.global_grid, cell);
             if (c && c->count > 0)
             {
                 w.editor.selected_entity = c->entities[c->count - 1];
@@ -86,9 +93,10 @@ namespace Editor
     {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+            Cell* c = GridGetCell(w.global_grid, cell);
+            if (!c) return;
 
-            if (!c || c->count == 0)
+            if (c->count == 0)
             {
                 Spawn(w, cell);
             }
@@ -109,18 +117,18 @@ namespace Editor
         float size = w.global_grid.cell_size;
 
         DrawRectangleLines(
-            w.global_grid.position.x + cell.x * size,
-            w.global_grid.position.y + cell.y * size,
+            w.global_grid.origin.x + cell.x * size,
+            w.global_grid.origin.y + cell.y * size,
             size,
             size,
             RED
         );
     }
 
-    void Update(World& w, UIContext& ctx)
+    void Update(World& w, UIContext& ctx, Camera2D cam)
     {
         //Vector2i cell = w.cursor_cell;
-        Vector2i cell = GetMouseCell(w);
+        Vector2i cell = GetMouseCell(w, cam);
         w.editor.hovered_cell = cell;
 
         //EditorSelectArchetype(w);
@@ -157,7 +165,7 @@ namespace Editor
 
     void DrawSidePanel(UIGrid& ui, UIContext& ctx)
     {
-        Rectangle panel = UIGetRectSpan(ui, 0, 4, 2, 8);
+        Rectangle panel = UIGetRectSpan(ui, 0, 6, 2, 8);
         GuiPanel(panel, "");
 
         switch (ctx.selected_tool)
@@ -178,10 +186,10 @@ namespace Editor
 
     void DrawBottomBar(UIGrid& ui, UIContext& ctx)
     {
-        if (GuiButton(UIGetRect(ui, 6, 8), "Load"))
+        if (GuiButton(UIGetRect(ui, 13, 14), "Load"))
             ctx.request_load = true;
 
-        if (GuiButton(UIGetRect(ui, 8, 8), "Save"))
+        if (GuiButton(UIGetRect(ui, 14, 14), "Save"))
             ctx.request_save = true;
     }
 
@@ -192,7 +200,7 @@ namespace Editor
 
         GuiSetStyle(DEFAULT, TEXT_SIZE, (int)(cell_h * 0.3f));
         DrawTopBar(ui, ctx);
-        DrawSidePanel(ui, ctx);
+        //DrawSidePanel(ui, ctx);
         DrawBottomBar(ui, ctx);
         if (w.editor.paint_mode)
         {
@@ -203,7 +211,7 @@ namespace Editor
 
     void DrawPalette(UIGrid& ui, UIContext& ctx, EditorState& editor)
     {
-        Rectangle panel = UIGetRectSpan(ui, 0, 1, 2, 6);
+        Rectangle panel = UIGetRectSpan(ui, 0, 6, 2, 6);
         GuiPanel(panel, "");
 
         for (int i = 0; i < PALETTE_COUNT; i++)
@@ -228,13 +236,15 @@ namespace Editor
     {
         if (!w.editor.paint_mode)
             return;
+        if (!IsCellInside(w.editor.hovered_cell, w.global_grid.width, w.global_grid.height))
+            return;
 
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         {
             Vector2i cell = w.editor.hovered_cell;
 
             // check si déjà une entité (optionnel)
-            Cell* c = GetCell(w.global_grid, cell.x, cell.y);
+            Cell* c = GridGetCell(w.global_grid, cell);
 
             if (c && c->count == 0)
             {
