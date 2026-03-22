@@ -27,7 +27,6 @@ namespace CameraController{
 
         Vector2 mouseWorldAfter = GetScreenToWorld2D(GetMousePosition(), c.cam);
         Vector2 delta = Vector2Subtract(mouseWorldBefore, mouseWorldAfter);
-        //c.cam.target = Vector2Lerp(c.cam.target, mouseWorldAfter, 0.25f);
 
         c.cam.target = Vector2Add(c.cam.target, delta);
     }

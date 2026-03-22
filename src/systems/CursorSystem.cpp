@@ -39,7 +39,6 @@ namespace CursorSystem
         {
             Vector2 delta = GetMouseDelta();
             int _interactible = w.active_interactible;
-            //OnCursorEnterCell(w, index, w.cursor_cell);
 
             if (w.path.path[_interactible].points.empty())
             {
@@ -50,43 +49,6 @@ namespace CursorSystem
             UpdateCursor(w, index, delta, _interactible, GetFrameTime());
             SyncCursorVisual(w, index, GetFrameTime());
 
-            /*
-            if (w.cursor.axis[index] == CursorAxis::AXIS_NONE)
-            {
-                if (fabs(delta.x) > fabs(delta.y)){
-                    w.cursor.axis[index] = CursorAxis::AXIS_HORIZONTAL;
-                }
-
-                else if (fabs(delta.x) < fabs(delta.y)){
-                    w.cursor.axis[index] = CursorAxis::AXIS_VERTICAL;
-                }
-            }
-
-            //UpdateCursorPhysics(w, index, GetMouseDelta(), GetFrameTime());
-            Vector2i new_cell = WorldToCell(w.cursor.pos[index]);
-            if (new_cell != w.cursor_cell)
-            {
-                int p_index = w.active_interactible;
-                OnCursorEnterCell(w, index, w.cursor_cell);
-
-                if (w.path.path[p_index].points.empty())
-                {
-                    w.path.path[p_index].points.push_back(w.cursor_cell);
-                    return;
-                }
-                UpdatePath(w.path.path[p_index].points, w.cursor_cell);
-            }
-            */
-
-            /*
-            if (IsNearCellCenter(w, index))
-            {
-                if (Vector2Length(GetMouseDelta()) > 0.5f) return;
-                w.cursor.axis[index] = CursorAxis::AXIS_NONE;
-            }
-            SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-
-            */
         }
         else
         {
@@ -136,68 +98,9 @@ namespace CursorSystem
         {
             int e = _grid.cells[_cell].entities[c];
             if (!w.path.has[e]) continue;
-            //if (w.hover.hovered[e])
-            //{
                 return e;
-            //}
         }
         return -1;
-    }
-
-
-
-
-    void UpdateCursorPhysics(World& w, int index, Vector2 mouse_delta, float dt)
-    {
-        float accel = 4000.0f;
-        float friction = 20.0f;
-
-        if (w.cursor.axis[index] == CursorAxis::AXIS_HORIZONTAL)
-        {
-            w.cursor.velocity[index].x += mouse_delta.x * accel * dt;
-            w.cursor.velocity[index].x -= w.cursor.velocity[index].x * friction * dt;
-            w.transform.pos[index].x += w.cursor.velocity[index].x * dt;
-        }
-        else if (w.cursor.axis[index] == CursorAxis::AXIS_VERTICAL)
-        {
-            w.cursor.velocity[index].y += mouse_delta.y * accel * dt;
-            w.cursor.velocity[index].y -= w.cursor.velocity[index].y * friction * dt;
-            w.transform.pos[index].y += w.cursor.velocity[index].y * dt;
-        }
-
-        Grid& _grid = w.global_grid;
-        Vector2 center = CellCenter(w.cursor_cell, _grid.origin, CELL_SIZE_WORLD);
-
-        if (w.cursor.axis[index] == CursorAxis::AXIS_HORIZONTAL)
-        {
-            //if (!IsNearCellCenter(w, index)) return;
-            w.transform.pos[index].y = center.y;
-        }
-
-        if (w.cursor.axis[index] == CursorAxis::AXIS_VERTICAL)
-        {
-            //if (!IsNearCellCenter(w, index)) return;
-            w.transform.pos[index].x = center.x;
-        }
-
-    }
-
-
-    void OnCursorEnterCell(World& w, int index, Vector2i new_cell)
-    {
-        int _active = w.active_interactible;
-        assert(_active >= 0 && "No active interactible");
-        Grid& grid = w.global_grid;
-
-        if (!IsCellInside(new_cell, grid.width, grid.height))
-            return;
-
-        if (!CanMovePath(w.path.path[_active].points, new_cell))
-            return;
-
-        w.cursor.cell[index] = new_cell;
-        w.path.path[_active].points.push_back(new_cell);
-        w.cursor.axis[index] = CursorAxis::AXIS_NONE;
     }
 
 
@@ -318,7 +221,7 @@ namespace CursorSystem
         }
 
         // 3. Appliquer mouvement CONTINU
-        float speed = 200.0f; // tweak
+        float speed = 100.0f; // tweak
 
         if (_axis_dir.x != 0)
             _axis_progress.x += mouse_delta.x * speed * dt;
@@ -386,78 +289,8 @@ namespace CursorSystem
             pos.y += (target.y - pos.y) * snap_strength * dt;
         }
 
-        // 🔥 ajout du décalage fluide
-        //pos.x += _axis_progress.x;
-        //pos.y += _axis_progress.y;
-
         w.transform.pos[entity] = pos;
     }
 
 
-    /*
-    void UpdateCursor(World& w, int entity, Vector2 mouse_delta, int interactible)
-    {
-        Vector2& _accumulator = w.cursor.accumulator[entity];
-
-        // 1. Accumulation
-        _accumulator.x += mouse_delta.x;
-        _accumulator.y += mouse_delta.y;
-
-        Vector2i dir = {0, 0};
-
-        // 2. Détection de direction (priorité axe dominant)
-        if (fabs(_accumulator.x) > fabs(_accumulator.y))
-        {
-            if (_accumulator.x > CELL_THRESHOLD)  dir = {1, 0};
-            if (_accumulator.x < -CELL_THRESHOLD) dir = {-1, 0};
-        }
-        if (fabs(_accumulator.x) < fabs(_accumulator.y))
-        {
-            if (_accumulator.y > CELL_THRESHOLD)  dir = {0, 1};
-            if (_accumulator.y < -CELL_THRESHOLD) dir = {0, -1};
-        }
-
-        if (dir.x == 0 && dir.y == 0)
-            return;
-
-        Vector2i current = w.cursor.cell[entity];
-        Vector2i next = { current.x + dir.x, current.y + dir.y };
-
-        // 3. Validation path
-        if (!CanMovePath(w.path.path[interactible].points, next))
-        {
-            // 🔥 clé du fix : on reset pour éviter le drift
-            _accumulator = {0, 0};
-            return;
-        }
-
-        // 4. Move validé
-        if (!IsUndoing(w.path.path[interactible].points, next))
-        {
-            w.path.path[interactible].points.push_back(next);
-        }
-
-        w.cursor.cell[entity] = next;
-        // 5. Consommer seulement l'axe utilisé
-        if (dir.x != 0)
-            _accumulator.x = 0;
-
-        if (dir.y != 0)
-            _accumulator.y = 0;
-    }
-
-    void SyncCursorVisual(World& w, int entity, float dt)
-    {
-        Vector2 target = CellCenter(w.cursor.cell[entity], w.global_grid.origin, w.global_grid.cell_size);
-
-        Vector2& pos = w.transform.pos[entity];
-
-        float speed = 25.0f;
-
-        pos.x += (target.x - pos.x) * speed * dt;
-        pos.y += (target.y - pos.y) * speed * dt;
-        }
-    }
-    */
-    
 }

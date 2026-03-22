@@ -207,5 +207,6 @@ namespace RenderSystem
         {
             Editor::Draw(world);
         }
+        DrawText(TextFormat("CURSOR FREE = %i", world.cursor.is_free[0]), 300, 1000, 10, BLACK);
     }
 }

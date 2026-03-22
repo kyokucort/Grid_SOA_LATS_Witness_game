@@ -96,10 +96,12 @@ void Update()
     {
         world.editor.enabled = !world.editor.enabled;
         if (world.editor.enabled){
+            SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
             EnableCursor();
             ShowCursor();
         }
         else{
+            SetMousePosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
             DisableCursor();
             HideCursor();
         }
