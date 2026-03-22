@@ -122,6 +122,7 @@ void AddLogic(World& w, int e)
 void AddEntity(World& w, int e, Archetype type)
 {
     w.entity.type[e] = type;
+    w.entity.alive[e] = true;
 }
 
 void AddTransform(World& w, int e, Vector2 pos, Vector2 size, Vector2 scale, Vector2i cell)

@@ -12,4 +12,5 @@ struct LogicPool
 {
     bool has[MAX_ENTITIES];
     LogicRule rule[MAX_ENTITIES];
+    uint32_t state[MAX_ENTITIES];
 };

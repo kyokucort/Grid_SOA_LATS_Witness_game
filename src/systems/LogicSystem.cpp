@@ -28,9 +28,10 @@ namespace LogicSystem
             if (!w.hover.hovered[e])
                 continue;
 
-            if (CheckRule(state, w.logic.rule[e]))
+            if (CheckRule(w.logic.state[e], w.logic.rule[e]))
             {
-                w.entity.alive[e] = false;
+                WorldManager::RemoveEntity(w, e);
+                //w.entity.alive[e] = false;
                 //ActivateEntity(w, e);
             }
         }

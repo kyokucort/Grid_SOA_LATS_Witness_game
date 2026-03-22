@@ -9,6 +9,7 @@ ArchetypeEntry archetypes[] = {
     {ARCH_PLAYER, "PLAYER"},
     {ARCH_CURSOR, "CURSOR"},
     {ARCH_KEY,    "KEY"},
+    {ARCH_DOOR,    "DOOR"},
     {ARCH_WALL,    "WALL"}
 };
 
@@ -18,11 +19,13 @@ void SaveWorldToFile(World& w, const char* filename)
 {
     std::ofstream file(filename);
 
+    printf("START Saving\n\n");
     for (int e = 0; e < MAX_ENTITIES; e++)
     {
         if (!w.entity.alive[e])
             continue;
 
+        printf("Saving : %i ------------------\n", e);
         Archetype type = w.entity.type[e];
         Vector2i cell = w.transform.cell[e];
         file << ArchetypeToString(type) << " "
@@ -30,6 +33,7 @@ void SaveWorldToFile(World& w, const char* filename)
              << cell.y << "\n";
     }
 
+    printf("END Saving\n\n");
     file.close();
 }
 
@@ -55,10 +59,9 @@ void LoadWorldFromFile(World& w, const char* filename)
     {
         Archetype type = StringToArchetype(type_str);
 
-        int e = CreateEntity(w);
+        int e = CreateFromArchetype(w, type, {x, y});
         if (e == -1) continue;
 
-        CreateFromArchetype(w, type, {x, y});
         WorldManager::MoveEntity(w, e, {x, y});
     }
 

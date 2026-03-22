@@ -18,6 +18,8 @@ struct CursorPool
     Vector2i cell[MAX_ENTITIES];
     CursorAxis axis[MAX_ENTITIES];
     Vector2 accumulator[MAX_ENTITIES]; // important
+    Vector2 axis_progress[MAX_ENTITIES]; // nouveau
+    Vector2i axis_dir[MAX_ENTITIES];     // (-1,0) ou (1,0) ou (0,-1) ou (0,1)
     
 
     Vector2 anchor[MAX_ENTITIES];

@@ -96,7 +96,7 @@ namespace Editor
             Cell* c = GridGetCell(w.global_grid, cell);
             if (!c) return;
 
-            if (c->count == 0)
+            if (c->count == 0 && GetMousePosition().x > 300 && GetMousePosition().x < GetScreenWidth() - 300)
             {
                 Spawn(w, cell);
             }
@@ -200,11 +200,20 @@ namespace Editor
 
         GuiSetStyle(DEFAULT, TEXT_SIZE, (int)(cell_h * 0.3f));
         DrawTopBar(ui, ctx);
-        //DrawSidePanel(ui, ctx);
+        DrawSidePanel(ui, ctx);
         DrawBottomBar(ui, ctx);
         if (w.editor.paint_mode)
         {
             DrawPalette(ui, ctx, w.editor);
+        }
+        Rectangle panel = UIGetRectSpan(ui, 0, 6, 2, 6);
+        for (int e = 0; e < MAX_ENTITIES; e++)
+        {
+            if (!w.entity.alive[e])
+                    continue;
+
+            DrawText(TextFormat("Entity ID : %i : \nCoords %f - %f",e, w.transform.pos[e].x, w.transform.pos[e].y), 20, 500 + (e * 32), 12, BLACK);
+            //GuiPanel(panel, TextFormat("Entity ID : %i : \nCoords%i - %i", w.transform.cell[e].x, w.transform.cell[e].y, e));
         }
     }
 
@@ -256,8 +265,23 @@ namespace Editor
             }
         }
     }
-}
 
+
+    void DrawEntityDebug(World& w)
+    {
+        for (int e = 0; e < MAX_ENTITIES; e++)
+        {
+            if (!w.entity.alive[e])
+                    continue;
+
+            DrawText(TextFormat("Entity ID : %i : \nCoords%i - %i", w.transform.cell[e].x, w.transform.cell[e].y, e), 20, 700, 12, BLACK);
+            //DrawText(TextFormat("%i - %i", world.transform.cell[e].x, world.transform.cell[e].y), 20, 700, 12, BLACK);
+        }
+    }
+
+
+
+}
 
 
 /*

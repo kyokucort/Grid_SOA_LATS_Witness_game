@@ -1,6 +1,7 @@
 #include "RenderSystem.hpp"
 #include "modules/math/grid_math.hpp"
 #include "editor/Editor.hpp"
+#include "raymath.h"
 
 
 namespace RenderSystem
@@ -68,30 +69,104 @@ namespace RenderSystem
         }
 
     }
-
+/*
     void DrawGrid(World& w)
     {
         Grid _grid = w.global_grid;
         for (int _x=0; _x < _grid.width; _x++){
             for (int _y=0; _y < _grid.height; _y++){
-                    Vector2 _draw_pos = {_grid.origin.x + (_x * _grid.cell_size), _grid.origin.y + (_y * _grid.cell_size)};
-                    Rectangle _rec = {_draw_pos.x, _draw_pos.y, _grid.cell_size, _grid.cell_size};
-                    DrawRectangleLinesEx(_rec, 2.0f, GRAY);
+                    //Vector2 _draw_pos = {_grid.origin.x + (_x * _grid.cell_size), _grid.origin.y + (_y * _grid.cell_size)};
+                    //Rectangle _rec = {_draw_pos.x, _draw_pos.y, _grid.cell_size, _grid.cell_size};
+                    //DrawRectangleLinesEx(_rec, 2.0f, GRAY);
             }
         }
         for (int i = 0; i < _grid.cells.size(); i++)
         {
-            Vector2i _coords = CellCoords(i, _grid.width);
-            Vector2 _center =  CellCenter(_coords, _grid.origin, _grid.cell_size);
-            DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _center.x - 32, _center.y - 32, 10, GRAY);
-            DrawText(TextFormat("%i - %i", _coords.x, _coords.y), _center.x - 32, _center.y - 16, 10, GRAY);
+            //Vector2i _coords = CellCoords(i, _grid.width);
+            //Vector2 _center =  CellCenter(_coords, _grid.origin, _grid.cell_size);
+            //DrawText(TextFormat("Entities = %i", _grid.cells[i].count), _center.x - 32, _center.y - 32, 10, GRAY);
+            //DrawText(TextFormat("%i - %i", _coords.x, _coords.y), _center.x - 32, _center.y - 16, 10, GRAY);
         }
 
     }
 
+
+*/
+    void DrawGrid(World& w, Camera2D camera)
+    {
+        Grid& grid = w.global_grid;
+
+        // 1. écran → world
+        Vector2 screen_min = {0, 0};
+        Vector2 screen_max = {
+            (float)GetScreenWidth(),
+            (float)GetScreenHeight()
+        };
+
+        Vector2 world_min = GetScreenToWorld2D(screen_min, camera);
+        Vector2 world_max = GetScreenToWorld2D(screen_max, camera);
+
+        // 2. world → grid
+        Vector2i min_cell;
+        min_cell.x = (int)((world_min.x - grid.origin.x) / grid.cell_size);
+        min_cell.y = (int)((world_min.y - grid.origin.y) / grid.cell_size);
+
+        Vector2i max_cell;
+        max_cell.x = (int)((world_max.x - grid.origin.x) / grid.cell_size);
+        max_cell.y = (int)((world_max.y - grid.origin.y) / grid.cell_size);
+
+        // 3. clamp
+        min_cell.x = Clamp(min_cell.x, 0, grid.width);
+        min_cell.y = Clamp(min_cell.y, 0, grid.height);
+
+        max_cell.x = Clamp(max_cell.x, 0, grid.width);
+        max_cell.y = Clamp(max_cell.y, 0, grid.height);
+
+        // 4. draw seulement visible
+        for (int x = min_cell.x; x <= max_cell.x; x++)
+        {
+            for (int y = min_cell.y; y <= max_cell.y; y++)
+            {
+                Vector2 pos = {
+                    grid.origin.x + x * grid.cell_size,
+                    grid.origin.y + y * grid.cell_size
+                };
+
+                Rectangle rec = {
+                    pos.x,
+                    pos.y,
+                    grid.cell_size,
+                    grid.cell_size
+                };
+
+                DrawRectangleLinesEx(rec, 1.0f, GRAY);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     void DrawPath(World& w)
     {
-        Grid _grid = w.global_grid;
+        Grid& _grid = w.global_grid;
+        int _cursor = WorldManager::World_FindCursor(w);
 
         for (int i=0 ; i < MAX_ENTITIES; i++)
         {
@@ -113,12 +188,18 @@ namespace RenderSystem
 
                 DrawLineEx(a, b, 16, Fade(BLUE, 0.8f));
             }
+            Vector2 a;
+            Vector2 b;
+            a.x = _grid.origin.x + (_path.back().x * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+            a.y = _grid.origin.y + (_path.back().y * CELL_SIZE_WORLD) + CELL_SIZE_WORLD/2;
+            b = w.transform.pos[_cursor];
+            DrawLineEx(a, b, 16, Fade(BLUE, 0.8f));
         }
     }
 
-    void DrawWorld(World& world, AssetManager& assets)
+    void DrawWorld(World& world, AssetManager& assets, CameraController::CameraController camera_control)
     {
-        DrawGrid(world);
+        DrawGrid(world, camera_control.cam);
         DrawPool(world, assets);
         DrawPath(world);
         DrawColliders(world);

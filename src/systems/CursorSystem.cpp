@@ -47,7 +47,7 @@ namespace CursorSystem
                 return;
             }
 
-            UpdateCursor(w, index, delta, _interactible);
+            UpdateCursor(w, index, delta, _interactible, GetFrameTime());
             SyncCursorVisual(w, index, GetFrameTime());
 
             /*
@@ -111,7 +111,7 @@ namespace CursorSystem
                     w.cursor.is_free[index] = true;
                     return;
                 }
-                w.state = PathSignalSystem::ComputePathSignal(w, w.path.path[w.active_interactible].points);
+                w.logic.state[_current] = PathSignalSystem::ComputePathSignal(w, w.path.path[w.active_interactible].points);
                 w.cursor.is_free[index] = true;
                 return;
             }
@@ -200,17 +200,6 @@ namespace CursorSystem
         w.cursor.axis[index] = CursorAxis::AXIS_NONE;
     }
 
-    bool IsNearCellCenter(World& w, int index)
-    {
-        Grid& grid = w.global_grid;
-
-        Vector2 center = CellCenter(w.cursor_cell, grid.origin, CELL_SIZE_WORLD);
-        Vector2 pos = w.transform.pos[index];
-
-        float dist = Vector2Distance(pos, center);
-
-        return dist < grid.cell_size * 0.15f;
-    }
 
     void UpdatePath(std::vector<Vector2i>& path, Vector2i next_cell)
     {
@@ -275,8 +264,137 @@ namespace CursorSystem
     }
 
 
-    static const float CELL_THRESHOLD = 20.0f; // à ajuster
 
+    static const float CELL_THRESHOLD = 2.0f; // à ajuster
+    float AXIS_LOCK_TOLERANCE = 0.5f;
+
+    void UpdateCursor(World& w, int entity, Vector2 mouse_delta, int interactible, float dt)
+    {
+        Vector2& _accumulator = w.cursor.accumulator[entity];
+        Vector2i& _axis_dir = w.cursor.axis_dir[entity];
+        Vector2& _axis_progress = w.cursor.axis_progress[entity];
+        Grid& grid = w.global_grid;
+
+        // 1. Accumulate input
+        _accumulator.x += mouse_delta.x;
+        _accumulator.y += mouse_delta.y;
+
+        // 2. Choix d’axe si aucun actif
+        if (_axis_dir.x == 0 && _axis_dir.y == 0)
+        {
+            if (fabs(_accumulator.x) > fabs(_accumulator.y))
+            {
+                if (fabs(_accumulator.x) > CELL_THRESHOLD)
+                {
+                    _axis_dir = { (_accumulator.x > 0) ? 1 : -1, 0 };
+                    _accumulator = {0,0};
+                }
+            }
+            if (fabs(_accumulator.x) < fabs(_accumulator.y))
+            {
+                if (fabs(_accumulator.y) > CELL_THRESHOLD)
+                {
+                    _axis_dir = { 0, (_accumulator.y > 0) ? 1 : -1 };
+                    _accumulator = {0,0};
+                }
+            }
+        }
+
+        if (_axis_dir.x != 0)
+        {
+            // on ignore un peu Y
+            if (fabs(_accumulator.y) > fabs(_accumulator.x) * (1.0f + AXIS_LOCK_TOLERANCE))
+            {
+                _axis_dir = {0, 0}; // autorise switch
+            }
+        }
+        if (_axis_dir.y != 0)
+        {
+            // on ignore un peu Y
+            if (fabs(_accumulator.x) > fabs(_accumulator.y) * (1.0f + AXIS_LOCK_TOLERANCE))
+            {
+                _axis_dir = {0, 0}; // autorise switch
+            }
+        }
+
+        // 3. Appliquer mouvement CONTINU
+        float speed = 200.0f; // tweak
+
+        if (_axis_dir.x != 0)
+            _axis_progress.x += mouse_delta.x * speed * dt;
+
+        if (_axis_dir.y != 0)
+            _axis_progress.y += mouse_delta.y * speed * dt;
+
+        // 4. Vérifier si on traverse une cellule
+        float cell_size = grid.cell_size;
+
+        Vector2i& current = w.cursor.cell[entity];
+
+        if (fabs(_axis_progress.x) >= cell_size ||
+            fabs(_axis_progress.y) >= cell_size)
+        {
+            Vector2i next = { current.x + _axis_dir.x, current.y + _axis_dir.y };
+
+            // validation path
+            if (!CanMovePath(w.path.path[interactible].points, next))
+            {
+                // 🔥 blocage net
+                //_axis_progress = {0,0};
+                _axis_progress.x = Clamp(_axis_progress.x, -200, 200);
+                _axis_progress.y = Clamp(_axis_progress.y, -200, 200);
+                _axis_dir = {0,0};
+                return;
+            }
+
+            // move validé
+            current = next;
+            //c.cell = next;
+
+            if (!IsUndoing(w.path.path[interactible].points, next))
+            {
+                w.path.path[interactible].points.push_back(next);
+            }
+
+            // reset partiel
+            _axis_progress = {0,0};
+            _axis_dir = {0,0};
+        }
+    }
+
+    void SyncCursorVisual(World& w, int entity, float dt)
+    {
+        float snap_strength = 0.2f;
+
+
+
+        Vector2i& current = w.cursor.cell[entity];
+        Vector2& _axis_progress = w.cursor.axis_progress[entity];
+        Vector2i& _axis_dir = w.cursor.axis_dir[entity];
+        Grid& grid = w.global_grid;
+
+        Vector2 target = CellCenter(current, grid.origin, grid.cell_size);
+
+        Vector2 pos = target;
+
+        if (_axis_dir.y != 0){
+            pos.x += (target.x - pos.x) * snap_strength * dt;
+            pos.y += _axis_progress.y;
+        }
+        if (_axis_dir.x != 0){
+            pos.x += _axis_progress.x;
+            pos.y += (target.y - pos.y) * snap_strength * dt;
+        }
+
+        // 🔥 ajout du décalage fluide
+        //pos.x += _axis_progress.x;
+        //pos.y += _axis_progress.y;
+
+        w.transform.pos[entity] = pos;
+    }
+
+
+    /*
     void UpdateCursor(World& w, int entity, Vector2 mouse_delta, int interactible)
     {
         Vector2& _accumulator = w.cursor.accumulator[entity];
@@ -338,6 +456,8 @@ namespace CursorSystem
 
         pos.x += (target.x - pos.x) * speed * dt;
         pos.y += (target.y - pos.y) * speed * dt;
+        }
     }
+    */
     
 }

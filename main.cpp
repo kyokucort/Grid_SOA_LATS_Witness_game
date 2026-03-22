@@ -131,8 +131,7 @@ void Draw()
         ClearBackground(BEIGE);
         BeginMode2D(camera_control.cam);
 
-        RenderSystem::DrawWorld(world, assets);
-        //Editor_Draw(world, editor);
+        RenderSystem::DrawWorld(world, assets, camera_control);
 
         EndMode2D();
 
@@ -143,10 +142,12 @@ void Draw()
             Editor::Draw_UI(world, ui);
         }
         DrawFPS(SCREEN_WIDTH - 30, SCREEN_HEIGHT - 30);
-        DrawText(TextFormat("%i - %i", world.cursor_cell.x, world.cursor_cell.y), 20, 700, 12, BLACK);
-        DrawText(TextFormat("%.0f - %.0f", world.mouse_world.x, world.mouse_world.y), 20, 720, 12, BLACK);
-        DrawText(TextFormat("%.0f - %.0f", world.transform.pos[WorldManager::World_FindCursor(world)].x, world.transform.pos[WorldManager::World_FindCursor(world)].y), 20, 750, 12, BLACK);
+        //DrawText(TextFormat("%i - %i", world.cursor_cell.x, world.cursor_cell.y), 20, 700, 12, BLACK);
+        //DrawText(TextFormat("%.0f - %.0f", world.mouse_world.x, world.mouse_world.y), 20, 720, 12, BLACK);
+        //DrawText(TextFormat("%.0f - %.0f", world.transform.pos[WorldManager::World_FindCursor(world)].x, world.transform.pos[WorldManager::World_FindCursor(world)].y), 20, 750, 12, BLACK);
 
     EndDrawing();
 }
+
+
 

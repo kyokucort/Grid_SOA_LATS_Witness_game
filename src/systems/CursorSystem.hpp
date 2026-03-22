@@ -20,6 +20,6 @@ namespace CursorSystem
     bool CanMovePath(std::vector<Vector2i>& path, Vector2i next_cell);
     bool PathContains(const std::vector<Vector2i>& path, Vector2i cell);
     bool IsUndoing(std::vector<Vector2i>& path, Vector2i next_cell);
-    void UpdateCursor(World& w, int entity, Vector2 mouse_delta, int interactible);
+    void UpdateCursor(World& w, int entity, Vector2 mouse_delta, int interactible, float dt);
     void SyncCursorVisual(World& w, int entity, float dt);
 }

@@ -21,9 +21,9 @@ namespace WorldManager{
 
         CameraController::Init(camera_control, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        Init_WorldGrid(world.global_grid, 25, 25, CELL_SIZE_WORLD, {0, 0});
+        Init_WorldGrid(world.global_grid, 1000, 1000, CELL_SIZE_WORLD, {0, 0});
         InitSpawnSystem();
-        CursorSystem::Init(world, CreateFromArchetype(world, ARCH_CURSOR, {0, 1}));
+        CursorSystem::Init(world, CreateFromArchetype(world, ARCH_CURSOR, {200, 200}));
         CreateFromArchetype(world, ARCH_KEY, {2, 2});
     }
 

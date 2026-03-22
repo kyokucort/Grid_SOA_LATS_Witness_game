@@ -20,7 +20,7 @@ namespace RenderSystem
     void CollectRenders(World& world, AssetManager assets);
     void DrawPool(World& world, AssetManager assets);
     void DrawColliders(World& w);
-    void DrawGrid(World& w);
+    void DrawGrid(World& w, Camera2D camera);
     void DrawPath(World& w);
-    void DrawWorld(World& world, AssetManager& assets);
+    void DrawWorld(World& world, AssetManager& assets, CameraController::CameraController camera_control);
 }
